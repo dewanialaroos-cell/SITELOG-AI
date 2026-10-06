@@ -1,0 +1,9 @@
+{
+  "name": "SITELOG AI",
+  "short_name": "SITELOG",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f8fafc",
+  "theme_color": "#111827",
+  "description": "Construction site daily reporting app"
+}
