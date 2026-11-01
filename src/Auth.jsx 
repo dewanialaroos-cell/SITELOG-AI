@@ -1,0 +1,159 @@
+
+import React, { useState } from "react";
+import { supabase } from "./supabase";
+import { LogIn, UserPlus, Building2 } from "lucide-react";
+
+export default function Auth({ onLogin }) {
+      const [mode, setMode] = useState("signup");
+        const [name, setName] = useState("");
+          const [email, setEmail] = useState("");
+            const [password, setPassword] = useState("");
+              const [company, setCompany] = useState("");
+                const [loading, setLoading] = useState(false);
+                  const [message, setMessage] = useState("");
+
+                    async function handleSubmit(e) {
+                            e.preventDefault();
+                                setMessage("");
+
+                                    if (mode === "signup" && (!name.trim() || !company.trim())) {
+                                              setMessage("Name aur company name dono enter karo.");
+                                                    return;
+                                    }
+
+                                        setLoading(true);
+
+                                            try {
+                                                      if (mode === "signup") {
+                                                                const { data, error } = await supabase.auth.signUp({
+                                                                              email: email.trim(),
+                                                                                        password,
+                                                                                                  options: {
+                                                                                                                data: {
+                                                                                                                                  full_name: name.trim()
+                                                                                                                }
+                                                                                                  }
+                                                                });
+
+                                                                        if (error) throw error;
+
+                                                                                if (!data.session) {
+                                                                                              setMessage(
+                                                                                                            "Signup ho gaya! Email inbox mein verification link check karo. Verify karne ke baad Login karo."
+                                                                                              );
+                                                                                                        setMode("login");
+                                                                                                                  return;
+                                                                                }
+
+                                                                                        onLogin(data.user);
+                                                      } else {
+                                                                const { data, error } = await supabase.auth.signInWithPassword({
+                                                                              email: email.trim(),
+                                                                                        password
+                                                                });
+
+                                                                        if (error) throw error;
+                                                                                onLogin(data.user);
+                                                      }
+                                            } catch (error) {
+                                                      setMessage(error.message || "Kuch ghalat hua. Dobara try karo.");
+                                            } finally {
+                                                      setLoading(false);
+                                            }
+                    }
+
+                      return (
+                            <div className="login-page">
+                                  <div className="login-card">
+                                          <div className="brand-box">
+                                                    <div className="brand-logo">S</div>
+                                                              <div>
+                                                                          <h1>SITELOG AI</h1>
+                                                                                      <p>Construction Site Management</p>
+                                                                                                </div>
+                                                                                                        </div>
+
+                                                                                                                <h2>{mode === "signup" ? "Create Account" : "Welcome Back"}</h2>
+                                                                                                                        <p className="muted">
+                                                                                                                                  {mode === "signup"
+                                                                                                                                              ? "Apni company ka secure workspace shuru karo."
+                                                                                                                                                          : "Apne account mein login karo."}
+                                                                                                                                                                  </p>
+
+                                                                                                                                                                          <form onSubmit={handleSubmit}>
+                                                                                                                                                                                    {mode === "signup" && (
+                                                                                                                                                                                                    <>
+                                                                                                                                                                                                                  <label>Your Name</label>
+                                                                                                                                                                                                                                <input
+                                                                                                                                                                                                                                                required
+                                                                                                                                                                                                                                                                value={name}
+                                                                                                                                                                                                                                                                                onChange={e => setName(e.target.value)}
+                                                                                                                                                                                                                                                                                                placeholder="Full name"
+                                                                                                                                                                                                                                                                                                              />
+
+                                                                                                                                                                                                                                                                                                                            <label>Company Name</label>
+                                                                                                                                                                                                                                                                                                                                          <input
+                                                                                                                                                                                                                                                                                                                                                          required
+                                                                                                                                                                                                                                                                                                                                                                          value={company}
+                                                                                                                                                                                                                                                                                                                                                                                          onChange={e => setCompany(e.target.value)}
+                                                                                                                                                                                                                                                                                                                                                                                                          placeholder="Construction company"
+                                                                                                                                                                                                                                                                                                                                                                                                                        />
+                                                                                                                                                                                                                                                                                                                                                                                                                                    </>
+                                                                                                                                                                                    )}
+
+                                                                                                                                                                                              <label>Email</label>
+                                                                                                                                                                                                        <input
+                                                                                                                                                                                                                    required
+                                                                                                                                                                                                                                type="email"
+                                                                                                                                                                                                                                            autoComplete="email"
+                                                                                                                                                                                                                                                        value={email}
+                                                                                                                                                                                                                                                                    onChange={e => setEmail(e.target.value)}
+                                                                                                                                                                                                                                                                                placeholder="you@example.com"
+                                                                                                                                                                                                                                                                                          />
+
+                                                                                                                                                                                                                                                                                                    <label>Password</label>
+                                                                                                                                                                                                                                                                                                              <input
+                                                                                                                                                                                                                                                                                                                          required
+                                                                                                                                                                                                                                                                                                                                      type="password"
+                                                                                                                                                                                                                                                                                                                                                  minLength={6}
+                                                                                                                                                                                                                                                                                                                                                              autoComplete={mode === "signup" ? "new-password" : "current-password"}
+                                                                                                                                                                                                                                                                                                                                                                          value={password}
+                                                                                                                                                                                                                                                                                                                                                                                      onChange={e => setPassword(e.target.value)}
+                                                                                                                                                                                                                                                                                                                                                                                                  placeholder="At least 6 characters"
+                                                                                                                                                                                                                                                                                                                                                                                                            />
+
+                                                                                                                                                                                                                                                                                                                                                                                                                      <button className="primary-btn" type="submit" disabled={loading}>
+                                                                                                                                                                                                                                                                                                                                                                                                                                  {loading ? "Please wait..." : mode === "signup" ? (
+                                                                                                                                                                                                                                                                                                                                                                                                                                                  <><UserPlus size={18} /> Sign Up</>
+                                                                                                                                                                                                                                                                                                                                                                                                                                  ) : (
+                                                                                                                                                                                                                                                                                                                                                                                                                                                  <><LogIn size={18} /> Login</>
+                                                                                                                                                                                                                                                                                                                                                                                                                                  )}
+                                                                                                                                                                                                                                                                                                                                                                                                                                            </button>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                    </form>
+
+                                                                                                                                                                                                                                                                                                                                                                                                                                                            {message && <p role="status" className="muted">{message}</p>}
+
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <button
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                              type="button"
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        className="secondary-btn"
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  onClick={() => {
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                setMode(mode === "signup" ? "login" : "signup");
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            setMessage("");
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  }}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          >
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    {mode === "signup"
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                ? "Already registered? Login"
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            : "New company? Create account"}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    </button>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          </div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              </div>
+                      );
+}
+
+                                                                                                                }
+                                                                                                  }
+                                                                })
+                                                      }
+                                    }
+                    }
+}
