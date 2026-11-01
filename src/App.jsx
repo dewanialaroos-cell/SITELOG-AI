@@ -98,6 +98,9 @@ function App() {
   const [editingReportId, setEditingReportId] = useState(null);
   const [saving, setSaving] = useState(false);
   const [notice, setNotice] = useState("");
+  const [inviteEmail, setInviteEmail] = useState("");
+  const [inviteProjectId, setInviteProjectId] = useState("");
+  const [inviteBusy, setInviteBusy] = useState(false);
 
   const isAdmin = companyRole === "owner" || companyRole === "admin";
   const userName = authUser?.user_metadata?.full_name || authUser?.email?.split("@")[0] || "Team member";
@@ -210,11 +213,23 @@ function App() {
           setCompany({ ...EMPTY_COMPANY, id: membership.company_id, name: "Company workspace" });
         }
 
-        const projectResult = await supabase
+        let allowedProjectIds = [];
+        if (!["owner", "admin"].includes(membership.role || "")) {
+          const assignmentResult = await supabase
+            .from("project_members")
+            .select("project_id")
+            .eq("user_id", authUser.id);
+          if (assignmentResult.error) throw assignmentResult.error;
+          allowedProjectIds = (assignmentResult.data || []).map(item => item.project_id);
+        }
+        let projectQuery = supabase
           .from("projects")
           .select("id, company_id, name, description, project_code, client, location, created_at")
-          .eq("company_id", membership.company_id)
           .order("created_at", { ascending: false });
+        projectQuery = ["owner", "admin"].includes(membership.role || "")
+          ? projectQuery.eq("company_id", membership.company_id)
+          : allowedProjectIds.length ? projectQuery.in("id", allowedProjectIds) : null;
+        const projectResult = projectQuery ? await projectQuery : { data: [], error: null };
         if (projectResult.error) throw projectResult.error;
         const projectRows = (projectResult.data || []).map(toProject);
         if (!alive) return;
@@ -330,6 +345,30 @@ function App() {
       notify(error?.message || "Company create nahi ho saki.");
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function inviteEngineer(event) {
+    event.preventDefault();
+    const email = inviteEmail.trim().toLowerCase();
+    if (!isAdmin || !companyId) return notify("Sirf company owner/admin engineer invite kar sakta hai.");
+    if (!email || !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)) return notify("Valid engineer email enter karein.");
+    if (!inviteProjectId) return notify("Engineer ke liye project select karein.");
+    setInviteBusy(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("invite-engineer", {
+        body: { email, company_id: companyId, project_id: inviteProjectId }
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      setInviteEmail("");
+      setInviteProjectId("");
+      notify("Invitation email bhej di gayi aur project assign ho gaya.");
+      setWorkspaceRefresh(value => value + 1);
+    } catch (error) {
+      notify(error?.message || "Engineer invitation nahi bheji ja saki.");
+    } finally {
+      setInviteBusy(false);
     }
   }
 
@@ -806,6 +845,16 @@ function App() {
                   <div className="form-actions"><button className="btn btn-primary" type="submit" disabled={saving || !isAdmin}><Save size={16} />{saving ? "Saving..." : "Save company profile"}</button></div>
                 </form>
               </section>
+              {isAdmin && <section className="card card-pad">
+                <div className="section-title"><div><h3>Invite an engineer</h3><p>Send an email invitation and assign the engineer to one project.</p></div><UserPlus size={22} /></div>
+                {!projects.length ? <div className="inline-message">Engineer invite karne se pehle kam az kam ek project create karein.</div> : <form onSubmit={inviteEngineer}>
+                  <div className="form-grid">
+                    <div className="field full"><label>Engineer email *</label><input required type="email" value={inviteEmail} onChange={event => setInviteEmail(event.target.value)} placeholder="engineer@example.com" /></div>
+                    <div className="field full"><label>Assign project *</label><select required value={inviteProjectId} onChange={event => setInviteProjectId(event.target.value)}><option value="">Select project</option>{projects.map(project => <option key={project.id} value={project.id}>{project.name}{project.code ? ` (${project.code})` : ""}</option>)}</select></div>
+                  </div>
+                  <div className="form-actions"><button className="btn btn-primary" type="submit" disabled={inviteBusy || !projects.length}><UserPlus size={16} />{inviteBusy ? "Sending invitation..." : "Send invitation"}</button></div>
+                </form>}
+              </section>}
               <section className="card card-pad company-summary">
                 <div className="section-title"><div><h3>Workspace details</h3><p>Account and access status.</p></div></div>
                 <div className="company-profile-mark"><div className="brand-mark">{shortName(company.name)}</div><div><strong>{company.name || "Company workspace"}</strong><span>Construction workspace</span></div></div>
@@ -813,7 +862,7 @@ function App() {
                 <div className="detail-line"><span>Workspace role</span><strong className="role-pill">{companyRole || "Team member"}</strong></div>
                 <div className="detail-line"><span>Projects</span><strong>{projects.length}</strong></div>
                 <div className="detail-line"><span>Reports</span><strong>{reports.length}</strong></div>
-                <div className="security-note"><ShieldCheck size={18} /><div><strong>Access-controlled cloud data</strong><p>Company, project and report access is enforced by Supabase policies. Team invitations and per-project assignment need a separate setup before use.</p></div></div>
+                <div className="security-note"><ShieldCheck size={18} /><div><strong>Access-controlled cloud data</strong><p>Company, project and report access is enforced by Supabase policies. Engineers can access only projects assigned to their account.</p></div></div>
               </section>
             </div>
           </>}
