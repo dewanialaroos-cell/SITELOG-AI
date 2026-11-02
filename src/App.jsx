@@ -352,7 +352,7 @@ function App() {
   }
 
   async function inviteEngineer(event) {
-    event.preventDefault();
+    event?.preventDefault?.();
     setInviteMessage("Invitation request bheji ja rahi hai...");
     const email = inviteEmail.trim().toLowerCase();
     if (!isAdmin || !companyId) { setInviteMessage("Sirf company owner/admin engineer invite kar sakta hai."); return; }
@@ -866,7 +866,7 @@ function App() {
                     <div className="field full"><label>Engineer email *</label><input required type="email" value={inviteEmail} onChange={event => setInviteEmail(event.target.value)} placeholder="engineer@example.com" /></div>
                     <div className="field full"><label>Assign project *</label><select required value={inviteProjectId} onChange={event => setInviteProjectId(event.target.value)}><option value="">Select project</option>{projects.map(project => <option key={project.id} value={project.id}>{project.name}{project.code ? ` (${project.code})` : ""}</option>)}</select></div>
                   </div>
-                  <div className="form-actions"><button className="btn btn-primary" type="submit" disabled={inviteBusy || !projects.length}><UserPlus size={16} />{inviteBusy ? "Sending invitation..." : "Send invitation"}</button></div>
+                  <div className="form-actions"><button className="btn btn-primary" type="button" onClick={() => inviteEngineer()} disabled={inviteBusy || !projects.length}><UserPlus size={16} />{inviteBusy ? "Sending invitation..." : "Send invitation"}</button></div>
                   {inviteMessage && <div className="inline-message" role="status" aria-live="polite">{inviteMessage}</div>}
                 </form>}
               </section>}
