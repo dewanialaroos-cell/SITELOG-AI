@@ -355,9 +355,9 @@ function App() {
     event.preventDefault();
     setInviteMessage("Invitation request bheji ja rahi hai...");
     const email = inviteEmail.trim().toLowerCase();
-    if (!isAdmin || !companyId) return notify("Sirf company owner/admin engineer invite kar sakta hai.");
-    if (!email || !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)) return notify("Valid engineer email enter karein.");
-    if (!inviteProjectId) return notify("Engineer ke liye project select karein.");
+    if (!isAdmin || !companyId) { setInviteMessage("Sirf company owner/admin engineer invite kar sakta hai."); return; }
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { setInviteMessage("Valid engineer email enter karein."); return; }
+    if (!inviteProjectId) { setInviteMessage("Engineer ke liye project select karein."); return; }
     setInviteBusy(true);
     try {
       const { data, error } = await supabase.functions.invoke("invite-engineer", {
