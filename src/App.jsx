@@ -76,6 +76,7 @@ function App() {
   const [authUser, setAuthUser] = useState(null);
   const [authReady, setAuthReady] = useState(false);
   const [authMode, setAuthMode] = useState("signup");
+  const [signupRole, setSignupRole] = useState("company");
   const [authForm, setAuthForm] = useState({ name: "", company: "", email: "", password: "" });
   const [authBusy, setAuthBusy] = useState(false);
   const [authMessage, setAuthMessage] = useState("");
@@ -101,6 +102,7 @@ function App() {
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteProjectId, setInviteProjectId] = useState("");
   const [inviteBusy, setInviteBusy] = useState(false);
+  const [inviteMessage, setInviteMessage] = useState("");
 
   const isAdmin = companyRole === "owner" || companyRole === "admin";
   const userName = authUser?.user_metadata?.full_name || authUser?.email?.split("@")[0] || "Team member";
@@ -163,8 +165,9 @@ function App() {
 
         let memberships = membershipQuery.data || [];
         const metadataCompany = String(authUser.user_metadata?.company_name || "").trim();
-        // New signups include company name in user metadata; create the owner workspace once.
-        if (!memberships.length && metadataCompany) {
+        const signupRole = String(authUser.user_metadata?.signup_role || "company");
+        // Only company-owner signups create a workspace automatically. Engineer signups wait for assignment.
+        if (!memberships.length && metadataCompany && signupRole === "company") {
           const createResult = await supabase.rpc("create_company", { company_name: metadataCompany });
           if (createResult.error) throw createResult.error;
           membershipQuery = await supabase
@@ -289,8 +292,8 @@ function App() {
       setAuthMessage("Email aur password enter karo.");
       return;
     }
-    if (authMode === "signup" && (!authForm.name.trim() || !authForm.company.trim())) {
-      setAuthMessage("Apna naam aur company ka naam bhi enter karo.");
+    if (authMode === "signup" && (!authForm.name.trim() || (signupRole === "company" && !authForm.company.trim()))) {
+      setAuthMessage(signupRole === "company" ? "Apna naam aur company ka naam bhi enter karo." : "Apna poora naam enter karo.");
       return;
     }
     setAuthBusy(true);
@@ -299,12 +302,12 @@ function App() {
         const { data, error } = await supabase.auth.signUp({
           email,
           password: authForm.password,
-          options: { data: { full_name: authForm.name.trim(), company_name: authForm.company.trim() } }
+          options: { data: { full_name: authForm.name.trim(), signup_role: signupRole, ...(signupRole === "company" ? { company_name: authForm.company.trim() } : {}) } }
         });
         if (error) throw error;
         if (!data.session) {
           setAuthMode("login");
-          setAuthMessage("Account signup ho gaya. Apni email verify karo, phir login karo.");
+          setAuthMessage(signupRole === "engineer" ? "Engineer account ban gaya. Email verify karke login karein; company admin ki assignment ka intezar karein." : "Company account signup ho gaya. Apni email verify karo, phir login karo.");
         } else {
           setAuthMessage("Account create ho gaya. Workspace load ho raha hai...");
         }
@@ -350,6 +353,7 @@ function App() {
 
   async function inviteEngineer(event) {
     event.preventDefault();
+    setInviteMessage("Invitation request bheji ja rahi hai...");
     const email = inviteEmail.trim().toLowerCase();
     if (!isAdmin || !companyId) return notify("Sirf company owner/admin engineer invite kar sakta hai.");
     if (!email || !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)) return notify("Valid engineer email enter karein.");
@@ -359,13 +363,19 @@ function App() {
       const { data, error } = await supabase.functions.invoke("invite-engineer", {
         body: { email, company_id: companyId, project_id: inviteProjectId }
       });
-      if (error) throw error;
+      if (error) {
+        let detail = error.message || "Invitation request failed.";
+        try { if (error.context?.json) { const payload = await error.context.json(); detail = payload?.error || payload?.message || detail; } } catch { /* keep original message */ }
+        throw new Error(detail);
+      }
       if (data?.error) throw new Error(data.error);
       setInviteEmail("");
       setInviteProjectId("");
-      notify("Invitation email bhej di gayi aur project assign ho gaya.");
+      setInviteMessage("Invitation email successfully bhej di gayi aur project assign ho gaya.");
+      notify("Invitation email successfully bhej di gayi.");
       setWorkspaceRefresh(value => value + 1);
     } catch (error) {
+      setInviteMessage(`Invitation nahi bheji ja saki: ${error?.message || "Unknown error"}`);
       notify(error?.message || "Engineer invitation nahi bheji ja saki.");
     } finally {
       setInviteBusy(false);
@@ -666,17 +676,21 @@ function App() {
             <div><h1>SITELOG AI</h1><p>Construction Site Management</p></div>
           </div>
           <div className="auth-kicker"><ShieldCheck size={15} /> Secure company workspace</div>
-          <h2>{authMode === "signup" ? "Build your workspace" : "Welcome back"}</h2>
-          <p>{authMode === "signup" ? "Apni construction company, projects aur site reports aik jagah manage karein." : "Apne secure SITELOG AI account mein login karein."}</p>
+          <h2>{authMode === "signup" ? "Create your SITELOG AI account" : "Welcome back"}</h2>
+          <p>{authMode === "signup" ? "Apni account type select karein." : "Apne secure SITELOG AI account mein login karein."}</p>
+          {authMode === "signup" && <div className="form-grid">
+            <button type="button" className={`btn ${signupRole === "company" ? "btn-primary" : "btn-dark"}`} onClick={() => { setSignupRole("company"); setAuthMessage(""); }}>Company Sign Up</button>
+            <button type="button" className={`btn ${signupRole === "engineer" ? "btn-primary" : "btn-dark"}`} onClick={() => { setSignupRole("engineer"); setAuthMessage(""); }}>Engineer Sign Up</button>
+          </div> }
           <form className="login-form" onSubmit={submitAuth}>
             {authMode === "signup" && <>
               <div className="field"><label>Full name</label><input required autoComplete="name" value={authForm.name} onChange={event => setAuthForm({ ...authForm, name: event.target.value })} placeholder="Your full name" /></div>
-              <div className="field"><label>Company name</label><input required autoComplete="organization" value={authForm.company} onChange={event => setAuthForm({ ...authForm, company: event.target.value })} placeholder="Construction company" /></div>
+              {signupRole === "company" && <div className="field"><label>Company name</label><input required autoComplete="organization" value={authForm.company} onChange={event => setAuthForm({ ...authForm, company: event.target.value })} placeholder="Construction company" /></div>}
             </>}
             <div className="field"><label>Email address</label><input required type="email" autoComplete="email" value={authForm.email} onChange={event => setAuthForm({ ...authForm, email: event.target.value })} placeholder="you@company.com" /></div>
             <div className="field"><label>Password</label><input required minLength={6} type="password" autoComplete={authMode === "signup" ? "new-password" : "current-password"} value={authForm.password} onChange={event => setAuthForm({ ...authForm, password: event.target.value })} placeholder="At least 6 characters" /></div>
             {authMessage && <div className="inline-message" role="status">{authMessage}</div>}
-            <button className="btn btn-primary" type="submit" disabled={authBusy}>{authBusy ? <RefreshCw size={17} /> : authMode === "signup" ? <UserPlus size={17} /> : <LogIn size={17} />}{authBusy ? "Please wait..." : authMode === "signup" ? "Create company account" : "Login securely"}</button>
+            <button className="btn btn-primary" type="submit" disabled={authBusy}>{authBusy ? <RefreshCw size={17} /> : authMode === "signup" ? <UserPlus size={17} /> : <LogIn size={17} />}{authBusy ? "Please wait..." : authMode === "signup" ? (signupRole === "company" ? "Create company account" : "Create engineer account") : "Login securely"}</button>
           </form>
           <div className="auth-switch">{authMode === "signup" ? "Already have an account?" : "New to SITELOG AI?"}<button type="button" className="text-button" onClick={() => { setAuthMode(authMode === "signup" ? "login" : "signup"); setAuthMessage(""); }}>{authMode === "signup" ? "Login" : "Create account"}</button></div>
           <div className="security-foot"><ShieldCheck size={14} /> Your data is connected to your Supabase account.</div>
@@ -691,10 +705,10 @@ function App() {
         <div className="login-card">
           <div className="login-brand"><div className="brand-mark">S</div><div><h1>Set up your workspace</h1><p>One company workspace for your project team.</p></div></div>
           {workspaceError && <div className="inline-message">{workspaceError}</div>}
-          <form className="login-form" onSubmit={createWorkspace}>
+          {authUser.user_metadata?.signup_role === "engineer" ? <div className="inline-message" role="status">Engineer account active hai, lekin abhi kisi company/project se assign nahi hua. Company admin se invitation ya assignment ka intezar karein. Apna login safe rakhein.</div> : <form className="login-form" onSubmit={createWorkspace}>
             <div className="field"><label>Company name</label><input required value={companySetupName} onChange={event => setCompanySetupName(event.target.value)} placeholder="Your construction company" /></div>
             <button className="btn btn-primary" type="submit" disabled={saving}><Building2 size={17} />{saving ? "Creating workspace..." : "Create company workspace"}</button>
-          </form>
+          </form>}
           <button className="btn btn-dark" type="button" onClick={logout}><LogOut size={16} />Sign out</button>
         </div>
       </div>
@@ -853,6 +867,7 @@ function App() {
                     <div className="field full"><label>Assign project *</label><select required value={inviteProjectId} onChange={event => setInviteProjectId(event.target.value)}><option value="">Select project</option>{projects.map(project => <option key={project.id} value={project.id}>{project.name}{project.code ? ` (${project.code})` : ""}</option>)}</select></div>
                   </div>
                   <div className="form-actions"><button className="btn btn-primary" type="submit" disabled={inviteBusy || !projects.length}><UserPlus size={16} />{inviteBusy ? "Sending invitation..." : "Send invitation"}</button></div>
+                  {inviteMessage && <div className="inline-message" role="status" aria-live="polite">{inviteMessage}</div>}
                 </form>}
               </section>}
               <section className="card card-pad company-summary">
