@@ -1,9 +1,21 @@
 {
-  "name": "SITELOG AI",
-  "short_name": "SITELOG",
+  "id": "/",
+  "name": "SITELOG AI — Construction Site Management",
+  "short_name": "SITELOG AI",
+  "description": "Manage construction projects, site activity and daily reports.",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
-  "background_color": "#f8fafc",
+  "orientation": "any",
+  "background_color": "#0b1220",
   "theme_color": "#111827",
-  "description": "Construction site daily reporting app"
+  "categories": ["business", "productivity"],
+  "icons": [
+    {
+      "src": "/icons/sitelog-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
 }
