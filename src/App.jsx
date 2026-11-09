@@ -597,65 +597,164 @@ function App() {
     }
   }
 
-  function generatePDF(report) {
+  function buildReportPDF(report) {
     const doc = new jsPDF({ unit: "mm", format: "a4" });
     const margin = 18;
     const maxWidth = 174;
-    let y = 18;
     const pageHeight = 282;
-    const addText = (value, size = 10, style = "normal", color = [42, 51, 64]) => {
-      doc.setFont("helvetica", style);
-      doc.setFontSize(size);
-      doc.setTextColor(...color);
-      const lines = doc.splitTextToSize(String(value || "-"), maxWidth);
-      lines.forEach(line => {
-        if (y > pageHeight) { doc.addPage(); y = 18; }
-        doc.text(line, margin, y);
-        y += size >= 16 ? 8 : 5.5;
-      });
+    let y = 52;
+
+    const drawPageHeader = () => {
+      doc.setFillColor(12, 22, 35);
+      doc.rect(0, 0, 210, 39, "F");
+      doc.setTextColor(255, 219, 145);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(21);
+      doc.text("SITELOG AI", margin, 18);
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(9);
+      doc.text(company.name || "Construction Site Management", margin, 27);
+      doc.setFontSize(13);
+      doc.text("DAILY SITE REPORT", 192, 18, { align: "right" });
+      doc.setFontSize(8);
+      doc.text(dateLabel(report.date), 192, 27, { align: "right" });
     };
-    doc.setFillColor(12, 22, 35);
-    doc.rect(0, 0, 210, 42, "F");
-    doc.setTextColor(255, 219, 145);
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(21);
-    doc.text("SITELOG AI", margin, 19);
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(10);
-    doc.text(company.name || "Construction Site Management", margin, 29);
-    doc.setFontSize(15);
-    doc.text("DAILY SITE REPORT", 210 - margin, 19, { align: "right" });
-    y = 53;
-    addText("PROJECT DETAILS", 12, "bold", [161, 105, 22]);
-    addText(`Project: ${report.projectName}`);
-    addText(`Project Code: ${report.projectCode || "-"}`);
-    addText(`Engineer: ${report.engineer || "-"}`);
-    addText(`Date: ${dateLabel(report.date)}`);
-    addText(`Weather: ${report.weather || "-"}`);
-    addText(`Working Hours: ${report.startTime || "-"} to ${report.endTime || "-"}`);
+
+    const newPage = () => {
+      doc.addPage();
+      drawPageHeader();
+      y = 50;
+    };
+
+    const ensureSpace = (height) => {
+      if (y + height > pageHeight) newPage();
+    };
+
+    const addHeading = (value) => {
+      ensureSpace(12);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(11);
+      doc.setTextColor(161, 105, 22);
+      doc.text(String(value).toUpperCase(), margin, y);
+      y += 7;
+    };
+
+    const addParagraph = (value, size = 9) => {
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(size);
+      doc.setTextColor(42, 51, 64);
+      const lines = doc.splitTextToSize(String(value || "-"), maxWidth);
+      const lineHeight = size * 0.42 + 1.5;
+      lines.forEach((line) => {
+        ensureSpace(lineHeight + 1);
+        doc.text(line, margin, y);
+        y += lineHeight;
+      });
+      y += 2;
+    };
+
+    drawPageHeader();
+    addHeading("Project details");
+    addParagraph(`Project: ${report.projectName}`);
+    addParagraph(`Project code: ${report.projectCode || "-"}`);
+    addParagraph(`Client: ${projects.find(item => item.id === report.projectId)?.client || "-"}`);
+    addParagraph(`Location: ${projects.find(item => item.id === report.projectId)?.location || "-"}`);
+    addParagraph(`Engineer: ${report.engineer || "-"}`);
+    addParagraph(`Date: ${dateLabel(report.date)}`);
+    addParagraph(`Weather: ${report.weather || "-"}`);
+    addParagraph(`Working hours: ${report.startTime || "-"} to ${report.endTime || "-"}`);
+
     const sections = [
-      ["WORK COMPLETED", report.workDone], ["LABOUR", report.labour],
-      ["MATERIALS", report.materials], ["EQUIPMENT", report.equipment],
-      ["ISSUES / DELAYS", report.issues], ["NOTES", report.notes]
+      ["Work completed", report.workDone],
+      ["Labour / manpower", report.labour],
+      ["Materials", report.materials],
+      ["Equipment", report.equipment],
+      ["Issues / delays", report.issues],
+      ["Additional notes", report.notes]
     ];
     sections.forEach(([heading, value]) => {
-      y += 3;
-      if (y > pageHeight - 15) { doc.addPage(); y = 18; }
-      addText(heading, 11, "bold", [161, 105, 22]);
-      addText(value || "-");
+      addHeading(heading);
+      addParagraph(value);
     });
+
     if (company.phone || company.email || company.address) {
-      y += 6;
-      addText("COMPANY CONTACT", 11, "bold", [161, 105, 22]);
-      [company.phone, company.email, company.address].filter(Boolean).forEach(line => addText(line, 9));
+      addHeading("Company contact");
+      [company.phone, company.email, company.address].filter(Boolean).forEach(line => addParagraph(line, 8));
     }
-    const safeName = String(report.projectName || "Report").replace(/[^a-z0-9-_]+/gi, "-").slice(0, 45);
-    doc.save(`SITELOG-${safeName}-${report.date || "Report"}.pdf`);
+
+    const photos = Array.isArray(report.photos) ? report.photos.filter(photo => typeof photo === "string" && photo.startsWith("data:image/")) : [];
+    if (photos.length) {
+      newPage();
+      addHeading(`Site photographs (${photos.length})`);
+      photos.forEach((photo, index) => {
+        try {
+          const props = doc.getImageProperties(photo);
+          const maxW = 174;
+          const maxH = 88;
+          const ratio = Math.min(maxW / props.width, maxH / props.height);
+          const width = props.width * ratio;
+          const height = props.height * ratio;
+          if (y + height + 12 > pageHeight) newPage();
+          doc.setDrawColor(220, 224, 230);
+          doc.roundedRect(margin - 1, y - 1, width + 2, height + 2, 2, 2, "S");
+          doc.addImage(photo, margin, y, width, height);
+          y += height + 6;
+          doc.setFont("helvetica", "normal");
+          doc.setFontSize(8);
+          doc.setTextColor(90, 98, 110);
+          doc.text(`Site photo ${index + 1} of ${photos.length}`, margin, y);
+          y += 10;
+        } catch (error) {
+          console.warn("Could not add a site photo to the PDF.", error);
+        }
+      });
+    }
+
+    const pageCount = doc.getNumberOfPages();
+    for (let page = 1; page <= pageCount; page += 1) {
+      doc.setPage(page);
+      doc.setDrawColor(220, 224, 230);
+      doc.line(margin, 287, 192, 287);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(8);
+      doc.setTextColor(120, 128, 140);
+      doc.text("Generated by SITELOG AI", margin, 292);
+      doc.text(`Page ${page} of ${pageCount}`, 192, 292, { align: "right" });
+    }
+    return doc;
   }
 
-  function shareReport(report) {
-    const text = `${company.name || "SITELOG AI"} — Daily Site Report\nProject: ${report.projectName}\nProject Code: ${report.projectCode || "-"}\nDate: ${dateLabel(report.date)}\nEngineer: ${report.engineer || "-"}\nWeather: ${report.weather || "-"}\n\nWork Completed:\n${report.workDone || "-"}\n\nLabour: ${report.labour || "-"}\nMaterials: ${report.materials || "-"}\nIssues: ${report.issues || "-"}`;
-    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank", "noopener,noreferrer");
+  function reportFileName(report) {
+    const safeName = String(report.projectName || "Report").replace(/[^a-z0-9-_]+/gi, "-").slice(0, 45);
+    return `SITELOG-${safeName}-${report.date || "Report"}.pdf`;
+  }
+
+  function generatePDF(report) {
+    const doc = buildReportPDF(report);
+    doc.save(reportFileName(report));
+    notify("Photo ke saath formatted PDF download ho rahi hai.");
+  }
+
+  async function shareReport(report) {
+    const doc = buildReportPDF(report);
+    const blob = doc.output("blob");
+    const file = new File([blob], reportFileName(report), { type: "application/pdf" });
+    const shareText = `${company.name || "SITELOG AI"} — Daily Site Report for ${report.projectName}`;
+
+    try {
+      if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({ files: [file], title: "SITELOG AI Daily Site Report", text: shareText });
+        return;
+      }
+    } catch (error) {
+      if (error?.name === "AbortError") return;
+      console.warn("Native PDF sharing was unavailable.", error);
+    }
+
+    doc.save(reportFileName(report));
+    const whatsappText = `${shareText}\nPDF download ho gayi hai. Is PDF ko WhatsApp chat mein attach karke send karein.`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(whatsappText)}`, "_blank", "noopener,noreferrer");
+    notify("PDF download ho gayi. WhatsApp mein chat khol kar PDF attach karein.");
   }
 
   function navigate(target) {
