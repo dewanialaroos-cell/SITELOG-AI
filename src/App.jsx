@@ -16,6 +16,98 @@ const EMPTY_REPORT = {
   workDone: "", labour: "", materials: "", equipment: "", issues: "", notes: "", photos: []
 };
 
+
+const ARABIC_TEXT = {
+  "Overview":"نظرة عامة","Projects":"المشاريع","Daily Reports":"التقارير اليومية","Company":"الشركة",
+  "Construction operations":"إدارة الإنشاءات","Construction management workspace":"مساحة إدارة الإنشاءات",
+  "Construction Site Management":"إدارة مواقع البناء","Secure company workspace":"مساحة عمل آمنة للشركة",
+  "Create your SITELOG AI account":"إنشاء حساب SITELOG AI","Welcome back":"مرحباً بعودتك",
+  "Apni account type select karein.":"اختر نوع الحساب.","Apne secure SITELOG AI account mein login karein.":"سجّل الدخول إلى حسابك الآمن في SITELOG AI.",
+  "Company Sign Up":"تسجيل الشركة","Engineer Sign Up":"تسجيل المهندس","Full name":"الاسم الكامل","Company name":"اسم الشركة",
+  "Email address":"البريد الإلكتروني","Password":"كلمة المرور","Your full name":"اكتب اسمك الكامل","Construction company":"شركة مقاولات",
+  "At least 6 characters":"6 أحرف على الأقل","Please wait...":"يرجى الانتظار...","Create company account":"إنشاء حساب شركة",
+  "Create engineer account":"إنشاء حساب مهندس","Login securely":"تسجيل الدخول بأمان","Already have an account?":"لديك حساب بالفعل؟",
+  "New to SITELOG AI?":"جديد في SITELOG AI؟","Login":"تسجيل الدخول","Create account":"إنشاء حساب",
+  "Your data is connected to your Supabase account.":"بياناتك مرتبطة بحساب Supabase الخاص بك.",
+  "Set up your workspace":"إعداد مساحة العمل","One company workspace for your project team.":"مساحة شركة واحدة لفريق مشاريعك.",
+  "Company workspace":"مساحة الشركة","Team member":"عضو الفريق","Sign out":"تسجيل الخروج","Create company workspace":"إنشاء مساحة الشركة",
+  "WORKSPACE":"مساحة العمل","Secure cloud workspace":"مساحة عمل سحابية آمنة","SITE OPERATIONS":"عمليات الموقع",
+  "New daily report":"تقرير يومي جديد","Add project":"إضافة مشروع","New report":"تقرير جديد","Retry":"إعادة المحاولة",
+  "YOUR WORKSPACE IS READY":"مساحة العمل جاهزة","Good morning":"صباح الخير","Good afternoon":"مساء الخير","Good evening":"مساء الخير",
+  "Keep projects moving with organised site updates, daily records and shareable reports.":"تابع مشاريعك من خلال تحديثات الموقع والسجلات اليومية والتقارير القابلة للمشاركة.",
+  "SITE INTELLIGENCE":"ذكاء الموقع","Total projects":"إجمالي المشاريع","Daily reports":"التقارير اليومية","This month":"هذا الشهر",
+  "Workspace status":"حالة مساحة العمل","In your workspace":"في مساحة عملك","Saved in the cloud":"محفوظة في السحابة",
+  "Reports this month":"تقارير هذا الشهر","Connected":"متصل","Supabase cloud sync":"مزامنة Supabase السحابية",
+  "Recent daily reports":"أحدث التقارير اليومية","Latest updates recorded by your site team.":"أحدث التحديثات المسجلة بواسطة فريق الموقع.",
+  "View all":"عرض الكل","Saved":"محفوظ","Edit report":"تعديل التقرير","No site reports yet":"لا توجد تقارير للموقع بعد",
+  "Your saved reports will appear here.":"ستظهر تقاريرك المحفوظة هنا.","Create first report":"إنشاء أول تقرير",
+  "Quick actions":"إجراءات سريعة","Common tasks in one place.":"المهام الشائعة في مكان واحد.",
+  "Create a project":"إنشاء مشروع","Set up a new site or contract":"إعداد موقع أو عقد جديد",
+  "Record site progress":"تسجيل تقدم الموقع","Prepare today's daily report":"إعداد التقرير اليومي لهذا اليوم",
+  "Company details":"تفاصيل الشركة","Update report branding details":"تحديث بيانات الشركة في التقارير",
+  "Cloud-connected workspace":"مساحة عمل متصلة بالسحابة",
+  "Data access is controlled by your signed-in account and database policies.":"يتم التحكم في الوصول إلى البيانات من خلال حسابك وسياسات قاعدة البيانات.",
+  "Edit project details":"تعديل تفاصيل المشروع","Create a project":"إنشاء مشروع",
+  "Enter the core information for this construction site.":"أدخل المعلومات الأساسية لموقع البناء.",
+  "Close project form":"إغلاق نموذج المشروع","Only company owners and admins can create or edit projects.":"يمكن لمالك الشركة أو المسؤول فقط إنشاء المشاريع أو تعديلها.",
+  "Project name *":"اسم المشروع *","Project code":"رمز المشروع","Client":"العميل","Location":"الموقع",
+  "Project description":"وصف المشروع","Save changes":"حفظ التغييرات","Save project":"حفظ المشروع","Cancel":"إلغاء",
+  "Project portfolio":"محفظة المشاريع","Search projects":"البحث عن المشاريع","NO CODE":"بدون رمز",
+  "Construction project workspace and daily site records.":"مساحة مشروع البناء وسجلات الموقع اليومية.",
+  "Client not set":"لم يتم تحديد العميل","Location not set":"لم يتم تحديد الموقع","Edit":"تعديل",
+  "No matching projects":"لا توجد مشاريع مطابقة","No projects created":"لم يتم إنشاء مشاريع",
+  "Try another project name, client or location.":"جرّب اسم مشروع أو عميلاً أو موقعاً آخر.",
+  "Create your first project to start logging site reports.":"أنشئ مشروعك الأول لبدء تسجيل تقارير الموقع.",
+  "Add first project":"إضافة أول مشروع","Edit daily report":"تعديل التقرير اليومي","Daily site report":"تقرير الموقع اليومي",
+  "Record work completed, resources used, site conditions and delays.":"سجّل الأعمال المنجزة والموارد المستخدمة وظروف الموقع والتأخيرات.",
+  "Cancel edit":"إلغاء التعديل","No projects available. Create a project first to attach this report to the correct site.":"لا توجد مشاريع. أنشئ مشروعاً أولاً لربط التقرير بالموقع الصحيح.",
+  "Project *":"المشروع *","Site engineer":"مهندس الموقع","Report date *":"تاريخ التقرير *","Weather":"الطقس",
+  "Select project":"اختر المشروع","Select weather":"اختر حالة الطقس","Sunny":"مشمس","Hot":"حار","Cloudy":"غائم",
+  "Windy":"عاصف","Rain":"ممطر","Dusty":"مغبر","Start time":"وقت البدء","End time":"وقت الانتهاء",
+  "Work completed *":"الأعمال المنجزة *","Voice input":"إدخال صوتي",
+  "Describe today's completed work, quantities and milestones...":"صف الأعمال المنجزة اليوم والكميات ومراحل الإنجاز...",
+  "Labour / manpower":"العمالة / القوى العاملة","Materials":"المواد","Equipment":"المعدات",
+  "Issues / delays":"المشكلات / التأخيرات","Additional notes":"ملاحظات إضافية",
+  "e.g. 8 masons, 4 helpers":"مثال: 8 بنّائين و4 مساعدين","Materials received or used":"المواد المستلمة أو المستخدمة",
+  "Equipment on site":"المعدات الموجودة في الموقع","Safety issues, blockers or delays":"مشكلات السلامة أو العوائق أو التأخيرات",
+  "Instructions and follow-up":"التعليمات والمتابعة","Site photos":"صور الموقع","Add site photos":"إضافة صور الموقع",
+  "Up to 8 images; compressed for easier saving":"حتى 8 صور؛ يتم ضغطها لتسهيل الحفظ",
+  "Remove photo":"إزالة الصورة","Saving report...":"جارٍ حفظ التقرير...","Update report":"تحديث التقرير",
+  "Save daily report":"حفظ التقرير اليومي","Clear form":"مسح النموذج","Saved reports":"التقارير المحفوظة",
+  "Search reports":"البحث في التقارير","Edit":"تعديل","PDF":"PDF","WhatsApp":"واتساب","Delete":"حذف",
+  "No matching reports":"لا توجد تقارير مطابقة","No reports saved yet":"لم يتم حفظ تقارير بعد",
+  "Try a different search.":"جرّب كلمات بحث أخرى.","Complete the form above and save a daily site report.":"أكمل النموذج أعلاه واحفظ تقرير الموقع اليومي.",
+  "Company profile":"ملف الشركة","Manage the company details used on your site reports.":"إدارة بيانات الشركة المستخدمة في تقارير الموقع.",
+  "Company information":"معلومات الشركة","These details can be added to generated PDF reports.":"يمكن إضافة هذه البيانات إلى تقارير PDF المُنشأة.",
+  "Business phone":"هاتف الشركة","Business email":"البريد الإلكتروني للشركة","Company address":"عنوان الشركة",
+  "Your construction company":"اسم شركة المقاولات","Save company profile":"حفظ ملف الشركة",
+  "Invite an engineer":"دعوة مهندس","Send an email invitation and assign the engineer to one project.":"أرسل دعوة بالبريد الإلكتروني وعيّن المهندس لمشروع واحد.",
+  "Engineer email *":"البريد الإلكتروني للمهندس *","Assign project *":"تعيين المشروع *","Send invitation":"إرسال الدعوة",
+  "Sending invitation...":"جارٍ إرسال الدعوة...","Workspace details":"تفاصيل مساحة العمل","Account and access status.":"حالة الحساب والوصول.",
+  "Construction workspace":"مساحة عمل الإنشاءات","Signed-in user":"المستخدم المسجل","Workspace role":"دور مساحة العمل",
+  "Projects":"المشاريع","Reports":"التقارير","Access-controlled cloud data":"بيانات سحابية محمية",
+  "Company, project and report access is enforced by Supabase policies. Engineers can access only projects assigned to their account.":"تُدار صلاحيات الشركة والمشاريع والتقارير عبر سياسات Supabase. يمكن للمهندسين الوصول إلى المشاريع المعيّنة لحساباتهم فقط.",
+  "Construction operations":"عمليات الإنشاءات","Secure cloud workspace":"مساحة عمل سحابية آمنة",
+  "Email":"البريد الإلكتروني","Forgot password?":"هل نسيت كلمة المرور؟","Send reset link":"إرسال رابط إعادة التعيين",
+  "Password reset email sent. Check your inbox.":"تم إرسال رسالة إعادة تعيين كلمة المرور. تحقق من بريدك الوارد."
+};
+const LANGUAGE_LABELS = { ar: "العربية", en: "English" };
+function translateNode(node, language) {
+  if (language !== "ar") return node;
+  if (typeof node === "string") return ARABIC_TEXT[node.trim()] || node;
+  if (Array.isArray(node)) return node.map(child => translateNode(child, language));
+  if (!React.isValidElement(node)) return node;
+  const props = { ...node.props };
+  ["placeholder", "aria-label", "title"].forEach(key => {
+    if (typeof props[key] === "string") props[key] = ARABIC_TEXT[props[key]] || props[key];
+  });
+  if (props.children !== undefined) props.children = translateNode(props.children, language);
+  return React.cloneElement(node, props);
+}
+function Localized({ language, children }) {
+  return <div lang={language} dir={language === "ar" ? "rtl" : "ltr"} className={language === "ar" ? "localized-app is-arabic" : "localized-app"}>{translateNode(children, language)}</div>;
+}
+
 const NAV_ITEMS = [
   { id: "dashboard", label: "Overview", icon: LayoutDashboard },
   { id: "projects", label: "Projects", icon: FolderKanban },
@@ -73,6 +165,7 @@ function shortName(value = "") {
 }
 
 function App() {
+  const [language, setLanguage] = useState(() => { try { return localStorage.getItem("sitelog-language") || "ar"; } catch { return "ar"; } });
   const [authUser, setAuthUser] = useState(null);
   const [authReady, setAuthReady] = useState(false);
   const [authMode, setAuthMode] = useState("signup");
@@ -105,6 +198,12 @@ function App() {
   const [inviteMessage, setInviteMessage] = useState("");
 
   const isAdmin = companyRole === "owner" || companyRole === "admin";
+  useEffect(() => {
+    try { localStorage.setItem("sitelog-language", language); } catch { /* storage may be unavailable */ }
+    document.documentElement.lang = language;
+    document.documentElement.dir = language === "ar" ? "rtl" : "ltr";
+  }, [language]);
+  const languagePicker = <label className="language-picker"><span>{language === "ar" ? "اللغة" : "Language"}</span><select aria-label="Language" value={language} onChange={event => setLanguage(event.target.value)}><option value="ar">العربية</option><option value="en">English</option></select></label>;
   const userName = authUser?.user_metadata?.full_name || authUser?.email?.split("@")[0] || "Team member";
 
   const notify = useCallback((message) => {
@@ -289,11 +388,11 @@ function App() {
     setAuthMessage("");
     const email = authForm.email.trim().toLowerCase();
     if (!email || !authForm.password) {
-      setAuthMessage("Email aur password enter karo.");
+      setAuthMessage("Enter your email and password.");
       return;
     }
     if (authMode === "signup" && (!authForm.name.trim() || (signupRole === "company" && !authForm.company.trim()))) {
-      setAuthMessage(signupRole === "company" ? "Apna naam aur company ka naam bhi enter karo." : "Apna poora naam enter karo.");
+      setAuthMessage(signupRole === "company" ? "Enter your name and company name." : "Enter your full name.");
       return;
     }
     setAuthBusy(true);
@@ -302,7 +401,7 @@ function App() {
         const { data, error } = await supabase.auth.signUp({
           email,
           password: authForm.password,
-          options: { data: { full_name: authForm.name.trim(), signup_role: signupRole, ...(signupRole === "company" ? { company_name: authForm.company.trim() } : {}) } }
+          options: { data: { full_name: authForm.name.trim(), preferred_language: language, signup_role: signupRole, ...(signupRole === "company" ? { company_name: authForm.company.trim() } : {}) } }
         });
         if (error) throw error;
         if (!data.session) {
@@ -316,13 +415,13 @@ function App() {
         if (error) throw error;
       }
     } catch (error) {
-      setAuthMessage(error?.message || "Login/Signup complete nahi hua.");
+      setAuthMessage(error?.message || "Login or sign-up could not be completed.");
     } finally {
       setAuthBusy(false);
     }
   }
 
-  async function logout() {
+  async function requestPasswordReset() {\n    const email = authForm.email.trim().toLowerCase();\n    if (!email) { setAuthMessage(language === "ar" ? "أدخل بريدك الإلكتروني أولاً." : "Enter your email address first."); return; }\n    setAuthBusy(true);\n    try {\n      const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin });\n      if (error) throw error;\n      setAuthMessage(language === "ar" ? "تم إرسال رابط إعادة تعيين كلمة المرور. تحقق من بريدك الوارد." : "Password reset email sent. Check your inbox.");\n    } catch (error) { setAuthMessage(error?.message || (language === "ar" ? "تعذر إرسال رسالة إعادة التعيين." : "Could not send password reset email.")); }\n    finally { setAuthBusy(false); }\n  }\n\n  async function logout() {
     const { error } = await supabase.auth.signOut();
     if (error) notify(error.message);
     else {
@@ -336,16 +435,16 @@ function App() {
   async function createWorkspace(event) {
     event.preventDefault();
     const name = companySetupName.trim();
-    if (!name) return notify("Company ka naam enter karo.");
+    if (!name) return notify("Enter the company name.");
     setSaving(true);
     try {
       const { error } = await supabase.rpc("create_company", { company_name: name });
       if (error) throw error;
       setCompanySetupName("");
       setWorkspaceRefresh(value => value + 1);
-      notify("Company workspace create ho gaya.");
+      notify("Company workspace created.");
     } catch (error) {
-      notify(error?.message || "Company create nahi ho saki.");
+      notify(error?.message || "Could not create the company.");
     } finally {
       setSaving(false);
     }
@@ -384,9 +483,9 @@ function App() {
 
   async function saveCompany(event) {
     event.preventDefault();
-    if (!companyId) return notify("Pehle company workspace create karo.");
-    if (!isAdmin) return notify("Company profile sirf owner/admin update kar sakta hai.");
-    if (!company.name.trim()) return notify("Company name zaroori hai.");
+    if (!companyId) return notify("Create a company workspace first.");
+    if (!isAdmin) return notify("Only the company owner or admin can update the profile.");
+    if (!company.name.trim()) return notify("Company name is required.");
     setSaving(true);
     try {
       const payload = {
@@ -395,9 +494,9 @@ function App() {
       };
       const { error } = await supabase.from("companies").update(payload).eq("id", companyId);
       if (error) throw error;
-      notify("Company profile database mein save ho gaya.");
+      notify("Company profile saved.");
     } catch (error) {
-      notify(error?.message || "Company profile save nahi hua.");
+      notify(error?.message || "Could not save the company profile.");
     } finally {
       setSaving(false);
     }
@@ -407,9 +506,9 @@ function App() {
 
   async function saveProject(event) {
     event.preventDefault();
-    if (!companyId) return notify("Company workspace missing hai.");
-    if (!isAdmin) return notify("Project create/edit karne ke liye owner/admin permission chahiye.");
-    if (!projectForm.name.trim()) return notify("Project name zaroori hai.");
+    if (!companyId) return notify("Company workspace is missing.");
+    if (!isAdmin) return notify("Owner or admin permission is required to manage projects.");
+    if (!projectForm.name.trim()) return notify("Project name is required.");
     setSaving(true);
     try {
       const payload = {
@@ -433,9 +532,9 @@ function App() {
       setProjects(prev => projectForm.id ? prev.map(item => item.id === saved.id ? saved : item) : [saved, ...prev]);
       setShowProjectForm(false);
       resetProjectForm();
-      notify(projectForm.id ? "Project updated." : "Project saved to database.");
+      notify(projectForm.id ? "Project updated." : "Project saved.");
     } catch (error) {
-      notify(error?.message || "Project save nahi hua.");
+      notify(error?.message || "Could not save the project.");
     } finally {
       setSaving(false);
     }
@@ -448,7 +547,7 @@ function App() {
   }
 
   async function deleteProject(id) {
-    if (!isAdmin) return notify("Project delete permission nahi hai.");
+    if (!isAdmin) return notify("You do not have permission to delete this project.");
     if (!window.confirm("Delete this project? Reports linked to it may prevent deletion.")) return;
     try {
       const { error } = await supabase.from("projects").delete().eq("id", id);
@@ -456,7 +555,7 @@ function App() {
       setProjects(prev => prev.filter(project => project.id !== id));
       notify("Project deleted.");
     } catch (error) {
-      notify(error?.message || "Project delete nahi hua. Is project ke reports pehle remove karne par sakte hain.");
+      notify(error?.message || "Could not delete the project. Remove linked reports first if required.");
     }
   }
 
@@ -490,17 +589,17 @@ function App() {
   async function compressPhoto(file) {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
-      reader.onerror = () => reject(new Error(`Photo read nahi hua: ${file.name}`));
+      reader.onerror = () => reject(new Error(`Could not read photo: ${file.name}`));
       reader.onload = () => {
         const image = new Image();
-        image.onerror = () => reject(new Error(`Photo open nahi hua: ${file.name}`));
+        image.onerror = () => reject(new Error(`Could not open photo: ${file.name}`));
         image.onload = () => {
           const scale = Math.min(1, 1400 / Math.max(image.width, image.height));
           const canvas = document.createElement("canvas");
           canvas.width = Math.max(1, Math.round(image.width * scale));
           canvas.height = Math.max(1, Math.round(image.height * scale));
           const context = canvas.getContext("2d");
-          if (!context) return reject(new Error("Photo compression available nahi hai."));
+          if (!context) return reject(new Error("Photo compression is unavailable."));
           context.drawImage(image, 0, 0, canvas.width, canvas.height);
           resolve(canvas.toDataURL("image/jpeg", 0.76));
         };
@@ -519,7 +618,7 @@ function App() {
       setReportForm(previous => ({ ...previous, photos: [...previous.photos, ...compressed].slice(0, 8) }));
       notify("Site photos attached.");
     } catch (error) {
-      notify(error?.message || "Photo attach nahi ho saki.");
+      notify(error?.message || "Could not attach photos.");
     }
   }
 
@@ -533,15 +632,15 @@ function App() {
       const spoken = event.results?.[0]?.[0]?.transcript || "";
       setReportForm(previous => ({ ...previous, [field]: previous[field] ? `${previous[field]} ${spoken}` : spoken }));
     };
-    recognition.onerror = () => notify("Voice input start nahi ho saka.");
+    recognition.onerror = () => notify("Could not start voice input.");
     recognition.start();
   }
 
   async function saveReport(event) {
     event.preventDefault();
-    if (!companyId) return notify("Company workspace missing hai.");
-    if (!reportForm.projectId) return notify("Pehle Projects section mein project create karo, phir report banao.");
-    if (!reportForm.workDone.trim()) return notify("Work Completed field fill karo.");
+    if (!companyId) return notify("Company workspace is missing.");
+    if (!reportForm.projectId) return notify("Create a project first, then prepare a report.");
+    if (!reportForm.workDone.trim()) return notify("Complete the Work Completed field.");
     setSaving(true);
     try {
       const payload = {
@@ -577,9 +676,9 @@ function App() {
         : [normalized, ...previous]);
       setEditingReportId(null);
       setReportForm({ ...EMPTY_REPORT, engineer: userName, projectId: projects[0]?.id || "", projectName: projects[0]?.name || "", projectCode: projects[0]?.code || "" });
-      notify(editingReportId ? "Daily report updated." : "Daily report saved to database.");
+      notify(editingReportId ? "Daily report updated." : "Daily report saved.");
     } catch (error) {
-      notify(error?.message || "Daily report save nahi hua.");
+      notify(error?.message || "Could not save the daily report.");
     } finally {
       setSaving(false);
     }
@@ -593,7 +692,7 @@ function App() {
       setReports(previous => previous.filter(item => item.id !== report.id));
       notify("Report deleted.");
     } catch (error) {
-      notify(error?.message || "Report delete nahi hua. Database permission check karo.");
+      notify(error?.message || "Could not delete the report. Check database permissions.");
     }
   }
 
@@ -732,7 +831,7 @@ function App() {
   function generatePDF(report) {
     const doc = buildReportPDF(report);
     doc.save(reportFileName(report));
-    notify("Photo ke saath formatted PDF download ho rahi hai.");
+    notify("Formatted PDF with photos is downloading.");
   }
 
   async function shareReport(report) {
@@ -754,7 +853,7 @@ function App() {
     doc.save(reportFileName(report));
     const whatsappText = `${shareText}\nPDF download ho gayi hai. Is PDF ko WhatsApp chat mein attach karke send karein.`;
     window.open(`https://wa.me/?text=${encodeURIComponent(whatsappText)}`, "_blank", "noopener,noreferrer");
-    notify("PDF download ho gayi. WhatsApp mein chat khol kar PDF attach karein.");
+    notify("PDF downloaded. Open WhatsApp and attach the PDF to your chat.");
   }
 
   function navigate(target) {
@@ -763,7 +862,7 @@ function App() {
   }
 
   if (!authReady || (authUser && workspaceLoading)) {
-    return <div className="login-wrap"><div className="login-card"><div className="login-brand"><div className="brand-mark">S</div><div><h1>SITELOG AI</h1><p>Construction management workspace</p></div></div><div className="empty"><RefreshCw size={24} className="spin-icon" /><p>Secure workspace load ho raha hai...</p></div></div></div>;
+    return <div className="login-wrap"><div className="login-card"><div className="login-brand"><div className="brand-mark">S</div><div><h1>SITELOG AI</h1><p>Construction management workspace</p></div></div><div className="empty"><RefreshCw size={24} className="spin-icon" /><p>Secure workspace is loading...</p></div></div>{languagePicker}</div></Localized>;
   }
 
   if (!authUser) {
@@ -788,7 +887,7 @@ function App() {
             </>}
             <div className="field"><label>Email address</label><input required type="email" autoComplete="email" value={authForm.email} onChange={event => setAuthForm({ ...authForm, email: event.target.value })} placeholder="you@company.com" /></div>
             <div className="field"><label>Password</label><input required minLength={6} type="password" autoComplete={authMode === "signup" ? "new-password" : "current-password"} value={authForm.password} onChange={event => setAuthForm({ ...authForm, password: event.target.value })} placeholder="At least 6 characters" /></div>
-            {authMessage && <div className="inline-message" role="status">{authMessage}</div>}
+            {authMode === "login" && <button type="button" className="text-button forgot-password" onClick={requestPasswordReset} disabled={authBusy}>{language === "ar" ? "هل نسيت كلمة المرور؟" : "Forgot password?"}</button>}\n            {authMessage && <div className="inline-message" role="status">{authMessage}</div>}
             <button className="btn btn-primary" type="submit" disabled={authBusy}>{authBusy ? <RefreshCw size={17} /> : authMode === "signup" ? <UserPlus size={17} /> : <LogIn size={17} />}{authBusy ? "Please wait..." : authMode === "signup" ? (signupRole === "company" ? "Create company account" : "Create engineer account") : "Login securely"}</button>
           </form>
           <div className="auth-switch">{authMode === "signup" ? "Already have an account?" : "New to SITELOG AI?"}<button type="button" className="text-button" onClick={() => { setAuthMode(authMode === "signup" ? "login" : "signup"); setAuthMessage(""); }}>{authMode === "signup" ? "Login" : "Create account"}</button></div>
@@ -960,7 +1059,7 @@ function App() {
               </section>
               {isAdmin && <section className="card card-pad">
                 <div className="section-title"><div><h3>Invite an engineer</h3><p>Send an email invitation and assign the engineer to one project.</p></div><UserPlus size={22} /></div>
-                {!projects.length ? <div className="inline-message">Engineer invite karne se pehle kam az kam ek project create karein.</div> : <form onSubmit={inviteEngineer}>
+                {!projects.length ? <div className="inline-message">Create at least one project before inviting an engineer.</div> : <form onSubmit={inviteEngineer}>
                   <div className="form-grid">
                     <div className="field full"><label>Engineer email *</label><input required type="email" value={inviteEmail} onChange={event => setInviteEmail(event.target.value)} placeholder="engineer@example.com" /></div>
                     <div className="field full"><label>Assign project *</label><select required value={inviteProjectId} onChange={event => setInviteProjectId(event.target.value)}><option value="">Select project</option>{projects.map(project => <option key={project.id} value={project.id}>{project.name}{project.code ? ` (${project.code})` : ""}</option>)}</select></div>
