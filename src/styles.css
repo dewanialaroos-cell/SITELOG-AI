@@ -19,3 +19,29 @@
 @media(max-width:520px){.topbar{padding:10px 12px}.brand-mark{width:37px;height:37px;border-radius:10px;font-size:18px}.brand-copy strong{font-size:13px}.brand-copy span{font-size:10px}.topbar-actions .btn{padding:8px 9px;min-height:35px;font-size:10px}.topbar-actions .btn svg{width:14px}.main{padding:18px 11px 20px}.page-title{font-size:25px}.page-subtitle{font-size:12px}.stats-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.stat-card{padding:12px}.stat-label{font-size:10px}.stat-value{font-size:23px}.stat-foot{font-size:9px}.welcome-content{padding:19px}.welcome-content h2{font-size:23px}.welcome-meta{gap:9px}.welcome-meta span{font-size:9px}.form-grid,.form-grid-3{grid-template-columns:1fr;gap:12px}.field.full{grid-column:auto}.project-grid{grid-template-columns:1fr}.project-tile{padding:15px}.project-desc{min-height:unset}.report-head{flex-direction:column}.report-actions{width:100%}.report-actions .btn{flex:1}.report-actions .btn:last-child{margin-left:0}.report-facts{gap:10px}.photo-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.login-card{padding:23px 20px}.login-card h2{font-size:20px}.app-footer{font-size:8px}.section-title h3{font-size:14px}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
 @media print{.topbar,.sidebar,.actions,.report-actions,.app-footer{display:none!important}.layout{display:block}.main{padding:0}.card,.stat-card{box-shadow:none;break-inside:avoid}.app-shell,body{background:#fff!important}}
+
+
+/* Language controls and Arabic RTL support */
+.language-picker{display:inline-flex;align-items:center;gap:7px;padding:5px 8px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--muted);font-size:11px;font-weight:750;white-space:nowrap}
+.language-picker select{border:0;background:transparent;color:var(--navy);font:inherit;font-weight:800;outline:none;cursor:pointer}
+.forgot-password{align-self:flex-end;margin:0 0 8px}
+.localized-app{min-height:100vh}
+.localized-app.is-arabic{direction:rtl;text-align:right;font-family:"Noto Sans Arabic",Tahoma,Arial,sans-serif}
+.localized-app.is-arabic .topbar,.localized-app.is-arabic .topbar-actions,.localized-app.is-arabic .brand,.localized-app.is-arabic .actions,.localized-app.is-arabic .section-title,.localized-app.is-arabic .page-head,.localized-app.is-arabic .list-row,.localized-app.is-arabic .report-head,.localized-app.is-arabic .report-actions,.localized-app.is-arabic .form-actions,.localized-app.is-arabic .welcome-meta{direction:rtl}
+.localized-app.is-arabic .sidebar{direction:rtl}
+.localized-app.is-arabic .nav-btn,.localized-app.is-arabic .quick-action,.localized-app.is-arabic .list-main,.localized-app.is-arabic .list-end,.localized-app.is-arabic .project-details>div,.localized-app.is-arabic .report-facts>span{direction:rtl}
+.localized-app.is-arabic .nav-btn{text-align:right}
+.localized-app.is-arabic .nav-chevron{margin-left:0;margin-right:auto;transform:rotate(180deg)}
+.localized-app.is-arabic .quick-action{text-align:right}
+.localized-app.is-arabic .quick-action>svg{transform:rotate(180deg)}
+.localized-app.is-arabic .field label,.localized-app.is-arabic .field input,.localized-app.is-arabic .field textarea,.localized-app.is-arabic .field select,.localized-app.is-arabic .search-control input{text-align:right}
+.localized-app.is-arabic .field-heading{flex-direction:row-reverse}
+.localized-app.is-arabic .sidebar-company{direction:rtl}
+.localized-app.is-arabic .welcome-content,.localized-app.is-arabic .page-head>div:first-child,.localized-app.is-arabic .section-title>div:first-child{text-align:right}
+.localized-app.is-arabic .login-card{text-align:right}
+.localized-app.is-arabic .login-brand{direction:rtl}
+.localized-app.is-arabic .auth-switch{text-align:center}
+.localized-app.is-arabic .login-form .btn{direction:rtl}
+.localized-app.is-arabic .language-picker{direction:rtl}
+.localized-app.is-arabic input,.localized-app.is-arabic textarea{unicode-bidi:plaintext}
+@media(max-width:760px){.topbar .language-picker{margin-inline-start:auto}.localized-app.is-arabic .topbar{padding-inline:14px}.localized-app.is-arabic .main{direction:rtl}}
