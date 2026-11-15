@@ -1,4 +1,4 @@
-# SITELOG AI — First Working Version
+# Construction Site AI — First Working Version
 
 A mobile-friendly construction site daily reporting PWA.
 
