@@ -38,7 +38,7 @@ Deno.serve(async (req) => {
     const email = String(body.email || "").trim().toLowerCase();
     const companyId = String(body.company_id || "");
     const projectId = String(body.project_id || "");
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || !companyId || !projectId) {
+    if (!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email) || !companyId || !projectId) {
       return respond({ error: "Valid email, company and project are required." }, 400);
     }
 
@@ -67,28 +67,72 @@ Deno.serve(async (req) => {
       return respond({ error: "Selected project does not belong to this company." }, 400);
     }
 
-    const { data: invited, error: inviteError } = await admin.auth.admin.inviteUserByEmail(email);
-    if (inviteError) {
-      return respond({
-        error: inviteError.message.includes("already") || inviteError.message.includes("registered")
-          ? "This email already has an account. Existing-user assignment is not enabled in this invitation flow yet."
-          : inviteError.message,
-      }, 400);
-    }
-    const invitedUserId = invited.user?.id;
-    if (!invitedUserId) throw new Error("Supabase did not return the invited user ID.");
+    // Resolve an already-registered engineer by email before attempting a new invite.
+    let targetUser: any = null;
+    const { data: firstPage, error: usersError } = await admin.auth.admin.listUsers({
+      page: 1,
+      perPage: 1000,
+    });
+    if (usersError) throw usersError;
+    targetUser = firstPage.users.find((user: any) => user.email?.toLowerCase() === email) || null;
 
-    const { error: companyInsertError } = await admin
+    let existingUser = Boolean(targetUser);
+    if (targetUser) {
+      const signupRole = targetUser.user_metadata?.signup_role;
+      if (signupRole && signupRole !== "engineer") {
+        return respond({ error: "This email belongs to a company account, not an engineer account." }, 409);
+      }
+      if (!signupRole) {
+        const { data: currentMembership, error: currentMembershipError } = await admin
+          .from("company_members")
+          .select("role")
+          .eq("company_id", companyId)
+          .eq("user_id", targetUser.id)
+          .maybeSingle();
+        if (currentMembershipError) throw currentMembershipError;
+        if (currentMembership && !["engineer", "owner", "admin"].includes(currentMembership.role)) {
+          return respond({ error: "This account is not registered as an engineer." }, 409);
+        }
+      }
+    } else {
+      const { data: invited, error: inviteError } = await admin.auth.admin.inviteUserByEmail(email);
+      if (inviteError) throw inviteError;
+      targetUser = invited.user;
+      if (!targetUser?.id) throw new Error("Supabase did not return the invited user ID.");
+    }
+
+    const userId = targetUser.id;
+    const { data: currentCompanyMembership, error: currentCompanyMembershipError } = await admin
       .from("company_members")
-      .insert({ company_id: companyId, user_id: invitedUserId, role: "engineer" });
-    if (companyInsertError && companyInsertError.code !== "23505") throw companyInsertError;
+      .select("role")
+      .eq("company_id", companyId)
+      .eq("user_id", userId)
+      .maybeSingle();
+    if (currentCompanyMembershipError) throw currentCompanyMembershipError;
+
+    if (!currentCompanyMembership) {
+      const { error } = await admin.from("company_members").insert({
+        company_id: companyId,
+        user_id: userId,
+        role: "engineer",
+      });
+      if (error && error.code !== "23505") throw error;
+    }
 
     const { error: projectInsertError } = await admin
       .from("project_members")
-      .insert({ project_id: projectId, user_id: invitedUserId, role: "engineer" });
+      .insert({ project_id: projectId, user_id: userId, role: "engineer" });
     if (projectInsertError && projectInsertError.code !== "23505") throw projectInsertError;
 
-    return respond({ success: true, invited_email: email });
+    return respond({
+      success: true,
+      existing_user: existingUser,
+      email_sent: !existingUser,
+      assigned_email: email,
+      message: existingUser
+        ? "Existing engineer assigned to the selected project."
+        : "Invitation email sent and project assigned.",
+    });
   } catch (error) {
     console.error("invite-engineer failed:", error);
     return respond({ error: error instanceof Error ? error.message : "Invitation failed." }, 500);
