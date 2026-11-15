@@ -215,6 +215,8 @@ function App() {
   const [authForm, setAuthForm] = useState({ name: "", company: "", email: "", password: "" });
   const [authBusy, setAuthBusy] = useState(false);
   const [authMessage, setAuthMessage] = useState("");
+  const [recoveryMode, setRecoveryMode] = useState(false);
+  const [recoveryPassword, setRecoveryPassword] = useState("");
 
   const [workspaceLoading, setWorkspaceLoading] = useState(false);
   const [workspaceRefresh, setWorkspaceRefresh] = useState(0);
@@ -480,6 +482,28 @@ function App() {
       setAuthMessage(error?.message || (language === "ar"
         ? "تعذر إرسال رسالة إعادة التعيين."
         : "Could not send password reset email."));
+    } finally {
+      setAuthBusy(false);
+    }
+  }
+
+  async function updateRecoveredPassword(event) {
+    event.preventDefault();
+    if (recoveryPassword.length < 8) {
+      setAuthMessage(language === "ar" ? "يجب أن تتكون كلمة المرور من 8 أحرف على الأقل." : "Password must be at least 8 characters.");
+      return;
+    }
+    setAuthBusy(true);
+    try {
+      const { error } = await supabase.auth.updateUser({ password: recoveryPassword });
+      if (error) throw error;
+      setRecoveryMode(false);
+      setRecoveryPassword("");
+      setAuthMessage(language === "ar" ? "تم تحديث كلمة المرور بنجاح. يمكنك الآن استخدام كلمة المرور الجديدة." : "Password updated successfully. You can now sign in with your new password.");
+      await supabase.auth.signOut();
+      setAuthMode("login");
+    } catch (error) {
+      setAuthMessage(error?.message || (language === "ar" ? "تعذر تحديث كلمة المرور." : "Could not update your password."));
     } finally {
       setAuthBusy(false);
     }
@@ -927,6 +951,23 @@ function App() {
 
   if (!authReady || (authUser && workspaceLoading)) {
     return <Localized language={language}><div className="login-wrap"><div className="login-card"><div className="login-brand"><div className="brand-mark">S</div><div><h1>SITELOG AI</h1><p>Construction management workspace</p></div></div><div className="empty"><RefreshCw size={24} className="spin-icon" /><p>Secure workspace is loading...</p></div></div>{languagePicker}</div></Localized>;
+  }
+
+  if (recoveryMode && authUser) {
+    return (
+      <Localized language={language}><div className="login-wrap">
+        <div className="login-card">
+          {languagePicker}
+          <div className="login-brand"><div className="brand-mark">S</div><div><h1>SITELOG AI</h1><p>Reset your password</p></div></div>
+          <h2>{language === "ar" ? "إنشاء كلمة مرور جديدة" : "Choose a new password"}</h2>
+          <form className="login-form" onSubmit={updateRecoveredPassword}>
+            <div className="field"><label>{language === "ar" ? "كلمة المرور الجديدة" : "New password"}</label><input required minLength={8} type="password" autoComplete="new-password" value={recoveryPassword} onChange={event => setRecoveryPassword(event.target.value)} placeholder={language === "ar" ? "8 أحرف على الأقل" : "At least 8 characters"} /></div>
+            {authMessage && <div className="inline-message" role="status">{authMessage}</div>}
+            <button className="btn btn-primary" type="submit" disabled={authBusy}>{authBusy ? "Please wait..." : language === "ar" ? "حفظ كلمة المرور الجديدة" : "Save new password"}</button>
+          </form>
+        </div>
+      </div></Localized>
+    );
   }
 
   if (!authUser) {
