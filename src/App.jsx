@@ -25,7 +25,7 @@ const ARABIC_TEXT = {
   "Choose your account type.":"اختر نوع الحساب.","Sign in to your secure Construction Site AI account.":"سجّل الدخول إلى حسابك الآمن في Construction Site AI.",
   "Company Sign Up":"تسجيل الشركة","Engineer Sign Up":"تسجيل المهندس","Full name":"الاسم الكامل","Company name":"اسم الشركة",
   "Email address":"البريد الإلكتروني","Password":"كلمة المرور","Your full name":"اكتب اسمك الكامل","Construction company":"شركة مقاولات",
-  "At least 6 characters":"6 أحرف على الأقل","Please wait...":"يرجى الانتظار...","Create company account":"إنشاء حساب شركة",
+  "At least 8 characters":"8 أحرف على الأقل","Please wait...":"يرجى الانتظار...","Create company account":"إنشاء حساب شركة",
   "Create engineer account":"إنشاء حساب مهندس","Login securely":"تسجيل الدخول بأمان","Already have an account?":"لديك حساب بالفعل؟",
   "New to Construction Site AI?":"جديد في Construction Site AI؟","Login":"تسجيل الدخول","Create account":"إنشاء حساب",
   "Your data is connected to your Supabase account.":"بياناتك مرتبطة بحساب Supabase الخاص بك.",
@@ -169,6 +169,9 @@ Object.assign(ARABIC_TEXT, {
 Object.assign(ARABIC_TEXT, {
   "Existing engineer assigned to the selected project. They can sign in to access it.": "تم تعيين المهندس الحالي للمشروع المحدد. يمكنه تسجيل الدخول للوصول إليه.",
   "Existing engineer assigned successfully.": "تم تعيين المهندس الحالي بنجاح.",
+  "Worker count": "عدد العمال",
+  "Total workers on site": "إجمالي العمال في الموقع",
+  "Workers / manpower count": "عدد العمال والقوى العاملة",
 });
 const LANGUAGE_LABELS = { ar: "العربية", en: "English" };
 function translateNode(node, language) {
@@ -1000,7 +1003,7 @@ function App() {
       <Localized language={language}><div className="login-wrap">
         <div className="login-card">
           {languagePicker}
-          <div className="login-brand"><div className="brand-mark">S</div><div><h1>Construction Site AI</h1><p>Reset your password</p></div></div>
+          <div className="login-brand"><div className="brand-mark">C</div><div><h1>Construction Site AI</h1><p>Reset your password</p></div></div>
           <h2>{language === "ar" ? "إنشاء كلمة مرور جديدة" : "Choose a new password"}</h2>
           <form className="login-form" onSubmit={updateRecoveredPassword}>
             <div className="field"><label>{language === "ar" ? "كلمة المرور الجديدة" : "New password"}</label><input required minLength={8} type="password" autoComplete="new-password" value={recoveryPassword} onChange={event => setRecoveryPassword(event.target.value)} placeholder={language === "ar" ? "8 أحرف على الأقل" : "At least 8 characters"} /></div>
@@ -1018,7 +1021,7 @@ function App() {
         <div className="login-card">
           {languagePicker}
           <div className="login-brand">
-            <div className="brand-mark">S</div>
+            <div className="brand-mark">C</div>
             <div><h1>Construction Site AI</h1><p>Construction Site Management</p></div>
           </div>
           <div className="auth-kicker"><ShieldCheck size={15} /> Secure company workspace</div>
@@ -1034,7 +1037,7 @@ function App() {
               {signupRole === "company" && <div className="field"><label>Company name</label><input required autoComplete="organization" value={authForm.company} onChange={event => setAuthForm({ ...authForm, company: event.target.value })} placeholder="Construction company" /></div>}
             </>}
             <div className="field"><label>Email address</label><input required type="email" autoComplete="email" value={authForm.email} onChange={event => setAuthForm({ ...authForm, email: event.target.value })} placeholder="you@company.com" /></div>
-            <div className="field"><label>Password</label><input required minLength={6} type="password" autoComplete={authMode === "signup" ? "new-password" : "current-password"} value={authForm.password} onChange={event => setAuthForm({ ...authForm, password: event.target.value })} placeholder="At least 6 characters" /></div>
+            <div className="field"><label>Password</label><input required minLength={8} type="password" autoComplete={authMode === "signup" ? "new-password" : "current-password"} value={authForm.password} onChange={event => setAuthForm({ ...authForm, password: event.target.value })} placeholder="At least 8 characters" /></div>
             {authMode === "login" && <button type="button" className="text-button forgot-password" onClick={requestPasswordReset} disabled={authBusy}>{language === "ar" ? "هل نسيت كلمة المرور؟" : "Forgot password?"}</button>}
             {authMessage && <div className="inline-message" role="status">{authMessage}</div>}
             <button className="btn btn-primary" type="submit" disabled={authBusy}>{authBusy ? <RefreshCw size={17} /> : authMode === "signup" ? <UserPlus size={17} /> : <LogIn size={17} />}{authBusy ? "Please wait..." : authMode === "signup" ? (signupRole === "company" ? "Create company account" : "Create engineer account") : "Login securely"}</button>
@@ -1051,7 +1054,7 @@ function App() {
       <Localized language={language}><div className="login-wrap">
         <div className="login-card">
           {languagePicker}
-          <div className="login-brand"><div className="brand-mark">S</div><div><h1>Set up your workspace</h1><p>One company workspace for your project team.</p></div></div>
+          <div className="login-brand"><div className="brand-mark">C</div><div><h1>Set up your workspace</h1><p>One company workspace for your project team.</p></div></div>
           {workspaceError && <div className="inline-message">{workspaceError}</div>}
           {authUser.user_metadata?.signup_role === "engineer" ? <div className="inline-message" role="status">Your engineer account is active, but it has not been assigned to a company or project yet. Please wait for an invitation or assignment from your company administrator.</div> : <form className="login-form" onSubmit={createWorkspace}>
             <div className="field"><label>Company name</label><input required value={companySetupName} onChange={event => setCompanySetupName(event.target.value)} placeholder="Your construction company" /></div>
@@ -1075,7 +1078,7 @@ function App() {
     <Localized language={language}><div className="app-shell">
       <header className="topbar">
         <div className="brand">
-          <div className="brand-mark">S</div>
+          <div className="brand-mark">C</div>
           <div className="brand-copy"><strong>Construction Site AI</strong><span>Construction operations</span></div>
         </div>
         <div className="topbar-actions">
