@@ -79,7 +79,7 @@ Deno.serve(async (req) => {
     let existingUser = Boolean(targetUser);
     if (targetUser) {
       const signupRole = targetUser.user_metadata?.signup_role;
-      if (signupRole && signupRole !== "engineer") {
+      if (signupRole !== "engineer") {
         return respond({ error: "This email belongs to a company account, not an engineer account." }, 409);
       }
       if (!signupRole) {
