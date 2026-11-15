@@ -875,9 +875,9 @@ function App() {
     }
 
     doc.save(reportFileName(report));
-    const whatsappText = `${shareText}\nPDF download ho gayi hai. Is PDF ko WhatsApp chat mein attach karke send karein.`;
+    const whatsappText = `${shareText}\nThe PDF has been downloaded. Please attach it in this WhatsApp chat and send it.`;
     window.open(`https://wa.me/?text=${encodeURIComponent(whatsappText)}`, "_blank", "noopener,noreferrer");
-    notify("PDF downloaded. Open WhatsApp and attach the PDF to your chat.");
+    notify(language === "ar" ? "تم تنزيل ملف PDF. افتح واتساب وأرفق الملف في المحادثة." : "PDF downloaded. Open WhatsApp and attach the file to your chat.");
   }
 
   function navigate(target) {
