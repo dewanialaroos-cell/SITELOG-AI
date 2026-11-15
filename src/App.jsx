@@ -106,7 +106,7 @@ Object.assign(ARABIC_TEXT, {
   "A clear picture of your active construction work.": "نظرة واضحة على أعمال البناء الجارية.",
   "Your engineer account is active, but it has not been assigned to a company or project yet. Please wait for an invitation or assignment from your company administrator.": "حساب المهندس نشط، ولكن لم يتم تعيينه لشركة أو مشروع بعد. يرجى انتظار دعوة أو تعيين من مسؤول الشركة.",
   "Enter your email and password.": "أدخل البريد الإلكتروني وكلمة المرور.",
-  "Valid engineer email enter karein.": "أدخل بريداً إلكترونياً صحيحاً للمهندس.",
+  "Enter a valid engineer email address.": "أدخل بريداً إلكترونياً صحيحاً للمهندس.",
   "Invitation email sent successfully.": "تم إرسال دعوة البريد الإلكتروني بنجاح.",
   "Invitation email sent and project assigned.": "تم إرسال الدعوة وتعيين المشروع بنجاح.",
   "Workspace could not be loaded.": "تعذر تحميل مساحة العمل.",
@@ -137,6 +137,22 @@ Object.assign(ARABIC_TEXT, {
   "Choose your account type.": "اختر نوع الحساب.",
   "Sign in to your secure SITELOG AI account.": "سجّل الدخول إلى حسابك الآمن في SITELOG AI.",
   "Your engineer account is active, but it has not been assigned to a company or project yet. Please wait for an invitation or assignment from your company administrator.": "حساب المهندس نشط، ولكن لم يتم تعيينه لشركة أو مشروع بعد. يرجى انتظار دعوة أو تعيين من مسؤول الشركة.",
+});
+Object.assign(ARABIC_TEXT, {
+  "Enter a valid engineer email address.": "أدخل بريداً إلكترونياً صحيحاً للمهندس.",
+  "Engineer account created. Check your inbox and spam folder for the verification email. After verifying, sign in and wait for your company admin to assign a project.": "تم إنشاء حساب المهندس. تحقق من صندوق الوارد والبريد غير المرغوب فيه للعثور على رسالة التحقق. بعد تأكيد البريد، سجّل الدخول وانتظر مسؤول الشركة لتعيين مشروع لك.",
+  "Company account created. Check your inbox and spam folder for the verification email.": "تم إنشاء حساب الشركة. تحقق من صندوق الوارد والبريد غير المرغوب فيه للعثور على رسالة التحقق.",
+  "The invitation email was not confirmed by the server.": "لم يؤكد الخادم إرسال دعوة البريد الإلكتروني.",
+  "Only this company's owner/admin can invite engineers.": "يمكن لمالك هذه الشركة أو مسؤولها فقط دعوة المهندسين.",
+  "Selected project does not belong to this company.": "المشروع المحدد لا يتبع هذه الشركة.",
+  "This email already has an account. Existing-user assignment is not enabled in this invitation flow yet.": "هذا البريد الإلكتروني لديه حساب بالفعل. تعيين المستخدمين الحاليين غير متاح في مسار الدعوة هذا حالياً.",
+  "Supabase did not return the invited user ID.": "لم يُرجع Supabase معرّف المستخدم المدعو.",
+  "Supabase Edge Function secrets are not configured.": "لم يتم إعداد أسرار وظيفة Supabase.",
+  "Login required.": "يلزم تسجيل الدخول.",
+  "Invalid or expired login session.": "جلسة تسجيل الدخول غير صالحة أو انتهت صلاحيتها.",
+  "Valid email, company and project are required.": "يلزم إدخال بريد إلكتروني وشركة ومشروع صالحين.",
+  "Email address not authorized": "عنوان البريد الإلكتروني غير مصرح له بالإرسال. يلزم إعداد SMTP مخصص في Supabase.",
+  "Email rate limit exceeded": "تم تجاوز حد إرسال رسائل البريد الإلكتروني. حاول لاحقاً أو أعد إعداد خدمة SMTP.",
 });
 const LANGUAGE_LABELS = { ar: "العربية", en: "English" };
 function translateNode(node, language) {
@@ -455,7 +471,7 @@ function App() {
         if (error) throw error;
         if (!data.session) {
           setAuthMode("login");
-          setAuthMessage(signupRole === "engineer" ? "Engineer account created. Verify your email and sign in; then wait for your company admin to assign a project." : "Company account created. Verify your email, then sign in.");
+          setAuthMessage(signupRole === "engineer" ? "Engineer account created. Check your inbox and spam folder for the verification email. After verifying, sign in and wait for your company admin to assign a project." : "Company account created. Check your inbox and spam folder for the verification email.");
         } else {
           setAuthMessage("Account created. Loading your workspace...");
         }
@@ -548,7 +564,7 @@ function App() {
     setInviteMessage("Sending invitation request...");
     const email = inviteEmail.trim().toLowerCase();
     if (!isAdmin || !companyId) { setInviteMessage("Only a company owner or admin can invite an engineer."); return; }
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { setInviteMessage("Valid engineer email enter karein."); return; }
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { setInviteMessage("Enter a valid engineer email address."); return; }
     if (!inviteProjectId) { setInviteMessage("Select a project for the engineer."); return; }
     setInviteBusy(true);
     try {
@@ -561,6 +577,7 @@ function App() {
         throw new Error(detail);
       }
       if (data?.error) throw new Error(data.error);
+      if (data?.success !== true) throw new Error(data?.message || "The invitation email was not confirmed by the server.");
       setInviteEmail("");
       setInviteProjectId("");
       setInviteMessage("Invitation email sent and project assigned.");
