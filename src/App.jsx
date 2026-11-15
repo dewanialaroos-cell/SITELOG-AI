@@ -154,6 +154,18 @@ Object.assign(ARABIC_TEXT, {
   "Email address not authorized": "عنوان البريد الإلكتروني غير مصرح له بالإرسال. يلزم إعداد SMTP مخصص في Supabase.",
   "Email rate limit exceeded": "تم تجاوز حد إرسال رسائل البريد الإلكتروني. حاول لاحقاً أو أعد إعداد خدمة SMTP.",
 });
+Object.assign(ARABIC_TEXT, {
+  "Email address not authorized": "هذا البريد الإلكتروني غير مصرح له بالإرسال. يجب إعداد خادم SMTP مخصص في Supabase.",
+  "email address not authorized": "هذا البريد الإلكتروني غير مصرح له بالإرسال. يجب إعداد خادم SMTP مخصص في Supabase.",
+  "email rate limit exceeded": "تم تجاوز الحد المسموح لإرسال البريد الإلكتروني. حاول لاحقاً أو أعد إعداد خدمة SMTP.",
+  "Email rate limit exceeded": "تم تجاوز الحد المسموح لإرسال البريد الإلكتروني. حاول لاحقاً أو أعد إعداد خدمة SMTP.",
+  "Invalid login credentials": "بيانات تسجيل الدخول غير صحيحة.",
+  "User already registered": "هذا البريد الإلكتروني مسجل بالفعل.",
+  "Password should be at least 6 characters": "يجب أن تتكون كلمة المرور من 6 أحرف على الأقل.",
+  "Signup requires a valid password": "يلزم إدخال كلمة مرور صحيحة لإنشاء الحساب.",
+  "Email not confirmed": "لم يتم تأكيد البريد الإلكتروني بعد. تحقق من رسالة التحقق في بريدك.",
+  "Too many requests": "عدد الطلبات كبير جداً. يرجى المحاولة لاحقاً.",
+});
 const LANGUAGE_LABELS = { ar: "العربية", en: "English" };
 function translateNode(node, language) {
   if (language !== "ar") return node;
