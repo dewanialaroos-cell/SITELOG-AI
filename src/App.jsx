@@ -862,7 +862,7 @@ function App() {
   }
 
   if (!authReady || (authUser && workspaceLoading)) {
-    return <div className="login-wrap"><div className="login-card"><div className="login-brand"><div className="brand-mark">S</div><div><h1>SITELOG AI</h1><p>Construction management workspace</p></div></div><div className="empty"><RefreshCw size={24} className="spin-icon" /><p>Secure workspace is loading...</p></div></div>{languagePicker}</div></Localized>;
+    return <Localized language={language}><div className="login-wrap"><div className="login-card"><div className="login-brand"><div className="brand-mark">S</div><div><h1>SITELOG AI</h1><p>Construction management workspace</p></div></div><div className="empty"><RefreshCw size={24} className="spin-icon" /><p>Secure workspace is loading...</p></div></div>{languagePicker}</div></Localized>;
   }
 
   if (!authUser) {
