@@ -12,7 +12,7 @@ const EMPTY_COMPANY = { id: null, name: "", phone: "", email: "", address: "" };
 const EMPTY_PROJECT = { id: null, name: "", code: "", client: "", location: "" };
 const EMPTY_REPORT = {
   id: null, projectId: "", projectName: "", projectCode: "", engineer: "",
-  date: new Date().toISOString().slice(0, 10), weather: "", startTime: "", endTime: "",
+  date: new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 10), workersCount: 0, weather: "", startTime: "", endTime: "",
   workDone: "", labour: "", materials: "", equipment: "", issues: "", notes: "", photos: []
 };
 
@@ -216,6 +216,7 @@ function toReport(row, projectMap = {}) {
     projectCode: row.project_code || project.code || "",
     engineer: row.engineer || "",
     date: row.report_date || "",
+    workersCount: Number(row.workers_count || 0),
     weather: row.weather || "",
     startTime: row.start_time || "",
     endTime: row.end_time || "",
@@ -270,6 +271,7 @@ function App() {
   const [projectForm, setProjectForm] = useState(EMPTY_PROJECT);
   const [showProjectForm, setShowProjectForm] = useState(false);
   const [reportForm, setReportForm] = useState(EMPTY_REPORT);
+  const [photoPreview, setPhotoPreview] = useState(null);
   const [editingReportId, setEditingReportId] = useState(null);
   const [saving, setSaving] = useState(false);
   const [notice, setNotice] = useState("");
@@ -753,7 +755,7 @@ function App() {
     const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!Recognition) return notify("Voice typing is not supported by this browser.");
     const recognition = new Recognition();
-    recognition.lang = "en-US";
+    recognition.lang = language === "ar" ? "ar-SA" : "en-US";
     recognition.interimResults = false;
     recognition.onresult = event => {
       const spoken = event.results?.[0]?.[0]?.transcript || "";
@@ -773,9 +775,9 @@ function App() {
       const payload = {
         project_id: reportForm.projectId,
         created_by: authUser.id,
-        report_date: reportForm.date || new Date().toISOString().slice(0, 10),
+        report_date: reportForm.date || new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 10),
         work_description: reportForm.workDone.trim(),
-        workers_count: 0,
+        workers_count: Math.max(0, Number.parseInt(reportForm.workersCount, 10) || 0),
         materials_used: reportForm.materials.trim() || null,
         issues: reportForm.issues.trim() || null,
         project_code: reportForm.projectCode.trim() || null,
@@ -886,6 +888,7 @@ function App() {
     addParagraph(`Client: ${projects.find(item => item.id === report.projectId)?.client || "-"}`);
     addParagraph(`Location: ${projects.find(item => item.id === report.projectId)?.location || "-"}`);
     addParagraph(`Engineer: ${report.engineer || "-"}`);
+    addParagraph(`Workers / manpower count: ${Number(report.workersCount || 0)}`);
     addParagraph(`Date: ${dateLabel(report.date)}`);
     addParagraph(`Weather: ${report.weather || "-"}`);
     addParagraph(`Working hours: ${report.startTime || "-"} to ${report.endTime || "-"}`);
@@ -1173,6 +1176,7 @@ function App() {
                 </div>
                 <div className="field full report-textarea"><div className="field-heading"><label>Work completed *</label><button className="voice-action" type="button" onClick={() => startVoice("workDone")}><Mic size={14} />Voice input</button></div><textarea required rows="4" value={reportForm.workDone} onChange={event => updateReportField("workDone", event.target.value)} placeholder="Describe today's completed work, quantities and milestones..." /></div>
                 <div className="form-grid form-grid-3">
+                  <div className="field"><label>Worker count</label><input type="number" min="0" step="1" value={reportForm.workersCount ?? 0} onChange={event => updateReportField("workersCount", event.target.value)} placeholder="Total workers on site" /></div>
                   <div className="field"><div className="field-heading"><label>Labour / manpower</label><button className="voice-action" type="button" onClick={() => startVoice("labour")}><Mic size={13} /></button></div><textarea rows="3" value={reportForm.labour} onChange={event => updateReportField("labour", event.target.value)} placeholder="e.g. 8 masons, 4 helpers" /></div>
                   <div className="field"><div className="field-heading"><label>Materials</label><button className="voice-action" type="button" onClick={() => startVoice("materials")}><Mic size={13} /></button></div><textarea rows="3" value={reportForm.materials} onChange={event => updateReportField("materials", event.target.value)} placeholder="Materials received or used" /></div>
                   <div className="field"><div className="field-heading"><label>Equipment</label><button className="voice-action" type="button" onClick={() => startVoice("equipment")}><Mic size={13} /></button></div><textarea rows="3" value={reportForm.equipment} onChange={event => updateReportField("equipment", event.target.value)} placeholder="Equipment on site" /></div>
@@ -1180,7 +1184,7 @@ function App() {
                   <div className="field"><div className="field-heading"><label>Additional notes</label><button className="voice-action" type="button" onClick={() => startVoice("notes")}><Mic size={13} /></button></div><textarea rows="3" value={reportForm.notes} onChange={event => updateReportField("notes", event.target.value)} placeholder="Instructions and follow-up" /></div>
                   <div className="field"><label>Site photos</label><label className="upload-tile"><Camera size={20} /><strong>Add site photos</strong><small>Up to 8 images; compressed for easier saving</small><input type="file" accept="image/*" multiple onChange={handlePhotos} /></label></div>
                 </div>
-                {reportForm.photos.length > 0 && <div className="photo-grid">{reportForm.photos.map((photo, index) => <div className="photo-item" key={`${index}-${photo.slice(0, 22)}`}><img src={photo} alt={`Site photograph ${index + 1}`} /><button type="button" aria-label="Remove photo" onClick={() => updateReportField("photos", reportForm.photos.filter((_, photoIndex) => photoIndex !== index))}><X size={15} /></button></div>)}</div>}
+                {reportForm.photos.length > 0 && <div className="photo-grid">{reportForm.photos.map((photo, index) => <div className="photo-item" key={`${index}-${photo.slice(0, 22)}`}><button type="button" className="photo-preview-trigger" onClick={() => setPhotoPreview(photo)} aria-label={`Open site photo ${index + 1}`}><img src={photo} alt={`Site photograph ${index + 1}`} /></button><button type="button" aria-label="Remove photo" onClick={() => updateReportField("photos", reportForm.photos.filter((_, photoIndex) => photoIndex !== index))}><X size={15} /></button></div>)}</div>}
                 <div className="form-actions"><button className="btn btn-primary" type="submit" disabled={saving || !projects.length}><Save size={16} />{saving ? "Saving report..." : editingReportId ? "Update report" : "Save daily report"}</button><button className="btn btn-dark" type="button" onClick={() => { setEditingReportId(null); setReportForm({ ...EMPTY_REPORT, engineer: userName, projectId: projects[0]?.id || "", projectName: projects[0]?.name || "", projectCode: projects[0]?.code || "" }); }}>Clear form</button></div>
               </form>
             </section>
@@ -1232,6 +1236,7 @@ function App() {
         </main>
       </div>
       {notice && <div className="toast" role="status">{notice}</div>}
+      {photoPreview && <div className="photo-lightbox" role="dialog" aria-modal="true" aria-label="Site photo preview" onClick={() => setPhotoPreview(null)}><button type="button" className="photo-lightbox-close" onClick={() => setPhotoPreview(null)} aria-label="Close photo preview"><X size={22} /></button><img src={photoPreview} alt="Full-size site photograph" onClick={event => event.stopPropagation()} /></div>}
     </div></Localized>
   );
 }
