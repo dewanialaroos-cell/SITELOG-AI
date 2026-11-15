@@ -91,10 +91,34 @@ const ARABIC_TEXT = {
   "Email":"البريد الإلكتروني","Forgot password?":"هل نسيت كلمة المرور؟","Send reset link":"إرسال رابط إعادة التعيين",
   "Password reset email sent. Check your inbox.":"تم إرسال رسالة إعادة تعيين كلمة المرور. تحقق من بريدك الوارد."
 };
+Object.assign(ARABIC_TEXT, {
+  "Untitled project": "مشروع بدون عنوان",
+  "Project report": "تقرير المشروع",
+  "Date not set": "لم يتم تحديد التاريخ",
+  "Engineer not listed": "لم يتم تحديد المهندس",
+  "No engineer": "لا يوجد مهندس",
+  "Cloud saved": "محفوظ في السحابة",
+  "Weather not set": "لم يتم تحديد الطقس",
+  "No work description entered.": "لم يتم إدخال وصف للعمل.",
+  "Daily site reports": "تقارير الموقع اليومية",
+  "Capture work progress and keep site records organised.": "سجّل تقدم العمل وحافظ على تنظيم سجلات الموقع.",
+  "Plan, track and organise your construction projects.": "خطط لمشاريع البناء وتابعها ونظّمها.",
+  "A clear picture of your active construction work.": "نظرة واضحة على أعمال البناء الجارية.",
+  "Engineer account active hai, lekin abhi kisi company/project se assign nahi hua. Company admin se invitation ya assignment ka intezar karein. Apna login safe rakhein.": "حساب المهندس نشط، ولكن لم يتم تعيينه لشركة أو مشروع بعد. يرجى انتظار دعوة أو تعيين من مسؤول الشركة.",
+  "Enter your email and password.": "أدخل البريد الإلكتروني وكلمة المرور.",
+  "Valid engineer email enter karein.": "أدخل بريداً إلكترونياً صحيحاً للمهندس.",
+  "Invitation email successfully bhej di gayi.": "تم إرسال دعوة البريد الإلكتروني بنجاح.",
+  "Invitation email successfully bhej di gayi aur project assign ho gaya.": "تم إرسال الدعوة وتعيين المشروع بنجاح.",
+  "Workspace load nahi ho saka.": "تعذر تحميل مساحة العمل.",
+  "Create a company workspace first.": "أنشئ مساحة الشركة أولاً.",
+  "Create at least one project before inviting an engineer.": "أنشئ مشروعاً واحداً على الأقل قبل دعوة مهندس.",
+  "Project name is required.": "اسم المشروع مطلوب.",
+  "Company name is required.": "اسم الشركة مطلوب.",
+});
 const LANGUAGE_LABELS = { ar: "العربية", en: "English" };
 function translateNode(node, language) {
   if (language !== "ar") return node;
-  if (typeof node === "string") return ARABIC_TEXT[node.trim()] || node;
+  if (typeof node === "string") { const key = node.trim(); const translated = ARABIC_TEXT[key]; return translated ? node.replace(key, translated) : node; }
   if (Array.isArray(node)) return node.map(child => translateNode(child, language));
   if (!React.isValidElement(node)) return node;
   const props = { ...node.props };
