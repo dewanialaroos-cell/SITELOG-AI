@@ -107,13 +107,26 @@ Object.assign(ARABIC_TEXT, {
   "Engineer account active hai, lekin abhi kisi company/project se assign nahi hua. Company admin se invitation ya assignment ka intezar karein. Apna login safe rakhein.": "حساب المهندس نشط، ولكن لم يتم تعيينه لشركة أو مشروع بعد. يرجى انتظار دعوة أو تعيين من مسؤول الشركة.",
   "Enter your email and password.": "أدخل البريد الإلكتروني وكلمة المرور.",
   "Valid engineer email enter karein.": "أدخل بريداً إلكترونياً صحيحاً للمهندس.",
-  "Invitation email successfully bhej di gayi.": "تم إرسال دعوة البريد الإلكتروني بنجاح.",
-  "Invitation email successfully bhej di gayi aur project assign ho gaya.": "تم إرسال الدعوة وتعيين المشروع بنجاح.",
-  "Workspace load nahi ho saka.": "تعذر تحميل مساحة العمل.",
+  "Invitation email sent successfully.": "تم إرسال دعوة البريد الإلكتروني بنجاح.",
+  "Invitation email sent and project assigned.": "تم إرسال الدعوة وتعيين المشروع بنجاح.",
+  "Workspace could not be loaded.": "تعذر تحميل مساحة العمل.",
   "Create a company workspace first.": "أنشئ مساحة الشركة أولاً.",
   "Create at least one project before inviting an engineer.": "أنشئ مشروعاً واحداً على الأقل قبل دعوة مهندس.",
   "Project name is required.": "اسم المشروع مطلوب.",
   "Company name is required.": "اسم الشركة مطلوب.",
+});
+Object.assign(ARABIC_TEXT, {
+  "Workspace could not be loaded.": "تعذر تحميل مساحة العمل.",
+  "Engineer account created. Verify your email and sign in; then wait for your company admin to assign a project.": "تم إنشاء حساب المهندس. أكد بريدك الإلكتروني وسجّل الدخول، ثم انتظر مسؤول الشركة لتعيين مشروع لك.",
+  "Company account created. Verify your email, then sign in.": "تم إنشاء حساب الشركة. أكد بريدك الإلكتروني ثم سجّل الدخول.",
+  "Account created. Loading your workspace...": "تم إنشاء الحساب. جارٍ تحميل مساحة العمل...",
+  "Sending invitation request...": "جارٍ إرسال طلب الدعوة...",
+  "Only a company owner or admin can invite an engineer.": "يمكن لمالك الشركة أو المسؤول فقط دعوة مهندس.",
+  "Select a project for the engineer.": "اختر مشروعاً للمهندس.",
+  "Invitation email sent and project assigned.": "تم إرسال الدعوة وتعيين المشروع.",
+  "Invitation email sent successfully.": "تم إرسال دعوة البريد الإلكتروني بنجاح.",
+  "Could not send invitation:": "تعذر إرسال الدعوة:",
+  "Could not send engineer invitation.": "تعذر إرسال دعوة المهندس.",
 });
 const LANGUAGE_LABELS = { ar: "العربية", en: "English" };
 function translateNode(node, language) {
@@ -371,7 +384,7 @@ function App() {
         setReports((reportResult.data || []).map(row => toReport(row, projectMap)));
       } catch (error) {
         if (alive) {
-          setWorkspaceError(error?.message || "Workspace load nahi ho saka.");
+          setWorkspaceError(error?.message || "Workspace could not be loaded.");
           setProjects([]);
           setReports([]);
         }
@@ -430,9 +443,9 @@ function App() {
         if (error) throw error;
         if (!data.session) {
           setAuthMode("login");
-          setAuthMessage(signupRole === "engineer" ? "Engineer account ban gaya. Email verify karke login karein; company admin ki assignment ka intezar karein." : "Company account signup ho gaya. Apni email verify karo, phir login karo.");
+          setAuthMessage(signupRole === "engineer" ? "Engineer account created. Verify your email and sign in; then wait for your company admin to assign a project." : "Company account created. Verify your email, then sign in.");
         } else {
-          setAuthMessage("Account create ho gaya. Workspace load ho raha hai...");
+          setAuthMessage("Account created. Loading your workspace...");
         }
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password: authForm.password });
@@ -476,11 +489,11 @@ function App() {
 
   async function inviteEngineer(event) {
     event?.preventDefault?.();
-    setInviteMessage("Invitation request bheji ja rahi hai...");
+    setInviteMessage("Sending invitation request...");
     const email = inviteEmail.trim().toLowerCase();
-    if (!isAdmin || !companyId) { setInviteMessage("Sirf company owner/admin engineer invite kar sakta hai."); return; }
+    if (!isAdmin || !companyId) { setInviteMessage("Only a company owner or admin can invite an engineer."); return; }
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { setInviteMessage("Valid engineer email enter karein."); return; }
-    if (!inviteProjectId) { setInviteMessage("Engineer ke liye project select karein."); return; }
+    if (!inviteProjectId) { setInviteMessage("Select a project for the engineer."); return; }
     setInviteBusy(true);
     try {
       const { data, error } = await supabase.functions.invoke("invite-engineer", {
@@ -494,12 +507,12 @@ function App() {
       if (data?.error) throw new Error(data.error);
       setInviteEmail("");
       setInviteProjectId("");
-      setInviteMessage("Invitation email successfully bhej di gayi aur project assign ho gaya.");
-      notify("Invitation email successfully bhej di gayi.");
+      setInviteMessage("Invitation email sent and project assigned.");
+      notify("Invitation email sent successfully.");
       setWorkspaceRefresh(value => value + 1);
     } catch (error) {
-      setInviteMessage(`Invitation nahi bheji ja saki: ${error?.message || "Unknown error"}`);
-      notify(error?.message || "Engineer invitation nahi bheji ja saki.");
+      setInviteMessage(`Could not send invitation: ${error?.message || "Unknown error"}`);
+      notify(error?.message || "Could not send engineer invitation.");
     } finally {
       setInviteBusy(false);
     }
