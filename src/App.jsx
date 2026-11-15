@@ -463,7 +463,29 @@ function App() {
     }
   }
 
-  async function requestPasswordReset() {\n    const email = authForm.email.trim().toLowerCase();\n    if (!email) { setAuthMessage(language === "ar" ? "أدخل بريدك الإلكتروني أولاً." : "Enter your email address first."); return; }\n    setAuthBusy(true);\n    try {\n      const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin });\n      if (error) throw error;\n      setAuthMessage(language === "ar" ? "تم إرسال رابط إعادة تعيين كلمة المرور. تحقق من بريدك الوارد." : "Password reset email sent. Check your inbox.");\n    } catch (error) { setAuthMessage(error?.message || (language === "ar" ? "تعذر إرسال رسالة إعادة التعيين." : "Could not send password reset email.")); }\n    finally { setAuthBusy(false); }\n  }\n\n  async function logout() {
+  async function requestPasswordReset() {
+    const email = authForm.email.trim().toLowerCase();
+    if (!email) {
+      setAuthMessage(language === "ar" ? "أدخل بريدك الإلكتروني أولاً." : "Enter your email address first.");
+      return;
+    }
+    setAuthBusy(true);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin });
+      if (error) throw error;
+      setAuthMessage(language === "ar"
+        ? "تم إرسال رابط إعادة تعيين كلمة المرور. تحقق من بريدك الوارد."
+        : "Password reset email sent. Check your inbox.");
+    } catch (error) {
+      setAuthMessage(error?.message || (language === "ar"
+        ? "تعذر إرسال رسالة إعادة التعيين."
+        : "Could not send password reset email."));
+    } finally {
+      setAuthBusy(false);
+    }
+  }
+
+  async function logout() {
     const { error } = await supabase.auth.signOut();
     if (error) notify(error.message);
     else {
