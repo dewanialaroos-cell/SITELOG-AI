@@ -166,6 +166,10 @@ Object.assign(ARABIC_TEXT, {
   "Email not confirmed": "لم يتم تأكيد البريد الإلكتروني بعد. تحقق من رسالة التحقق في بريدك.",
   "Too many requests": "عدد الطلبات كبير جداً. يرجى المحاولة لاحقاً.",
 });
+Object.assign(ARABIC_TEXT, {
+  "Existing engineer assigned to the selected project. They can sign in to access it.": "تم تعيين المهندس الحالي للمشروع المحدد. يمكنه تسجيل الدخول للوصول إليه.",
+  "Existing engineer assigned successfully.": "تم تعيين المهندس الحالي بنجاح.",
+});
 const LANGUAGE_LABELS = { ar: "العربية", en: "English" };
 function translateNode(node, language) {
   if (language !== "ar") return node;
@@ -592,8 +596,9 @@ function App() {
       if (data?.success !== true) throw new Error(data?.message || "The invitation email was not confirmed by the server.");
       setInviteEmail("");
       setInviteProjectId("");
-      setInviteMessage("Invitation email sent and project assigned.");
-      notify("Invitation email sent successfully.");
+      const existingAssigned = data?.existing_user === true;
+      setInviteMessage(existingAssigned ? "Existing engineer assigned to the selected project. They can sign in to access it." : "Invitation email sent and project assigned.");
+      notify(existingAssigned ? "Existing engineer assigned successfully." : "Invitation email sent successfully.");
       setWorkspaceRefresh(value => value + 1);
     } catch (error) {
       setInviteMessage(`Could not send invitation: ${error?.message || "Unknown error"}`);
