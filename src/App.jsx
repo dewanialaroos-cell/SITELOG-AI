@@ -235,6 +235,10 @@ function toReport(row, projectMap = {}) {
   };
 }
 
+function photoStoragePath(photo) { return photo && typeof photo === "object" ? photo.storagePath || "" : ""; }
+function photoKey(photo) { return typeof photo === "string" ? photo.slice(0, 40) : photoStoragePath(photo) || String(photo?.name || "site-photo"); }
+function photoDataUrl(photo) { return typeof photo === "string" && photo.startsWith("data:image/") ? photo : ""; }
+
 function dateLabel(value) {
   if (!value) return "Date not set";
   const date = new Date(`${value}T12:00:00`);
@@ -275,6 +279,7 @@ function App() {
   const [showProjectForm, setShowProjectForm] = useState(false);
   const [reportForm, setReportForm] = useState(EMPTY_REPORT);
   const [photoPreview, setPhotoPreview] = useState(null);
+  const [photoUrls, setPhotoUrls] = useState({});
   const [editingReportId, setEditingReportId] = useState(null);
   const [saving, setSaving] = useState(false);
   const [notice, setNotice] = useState("");
@@ -284,6 +289,21 @@ function App() {
   const [inviteMessage, setInviteMessage] = useState("");
 
   const isAdmin = companyRole === "owner" || companyRole === "admin";
+  useEffect(() => {
+    let active = true;
+    async function refreshPhotoUrls() {
+      const paths = [...new Set((reportForm.photos || []).map(photoStoragePath).filter(Boolean))];
+      if (!paths.length) { if (active) setPhotoUrls({}); return; }
+      const entries = await Promise.all(paths.map(async path => {
+        const { data, error } = await supabase.storage.from("site-report-photos").createSignedUrl(path, 3600);
+        return [path, error ? "" : data?.signedUrl || ""];
+      }));
+      if (active) setPhotoUrls(Object.fromEntries(entries));
+    }
+    refreshPhotoUrls().catch(error => console.warn("Could not refresh private photo previews.", error));
+    return () => { active = false; };
+  }, [reportForm.photos]);
+
   useEffect(() => {
     try { localStorage.setItem("sitelog-language", language); } catch { /* storage may be unavailable */ }
     document.documentElement.lang = language;
@@ -745,13 +765,52 @@ function App() {
     const files = Array.from(event.target.files || []).filter(file => file.type.startsWith("image/")).slice(0, 8);
     event.target.value = "";
     if (!files.length) return;
+    if (!companyId || !reportForm.projectId) return notify("Select a project before uploading site photos.");
     try {
       const compressed = await Promise.all(files.map(compressPhoto));
-      setReportForm(previous => ({ ...previous, photos: [...previous.photos, ...compressed].slice(0, 8) }));
-      notify("Site photos attached.");
+      const uploaded = await Promise.all(compressed.map(async (dataUrl, index) => {
+        const blob = await fetch(dataUrl).then(response => response.blob());
+        const path = `${companyId}/${reportForm.projectId}/${crypto.randomUUID()}.jpg`;
+        const { error } = await supabase.storage.from("site-report-photos").upload(path, blob, {
+          contentType: "image/jpeg", upsert: false, cacheControl: "3600"
+        });
+        if (error) throw error;
+        return { storagePath: path, name: files[index]?.name || `site-photo-${index + 1}.jpg` };
+      }));
+      setReportForm(previous => ({ ...previous, photos: [...previous.photos, ...uploaded].slice(0, 8) }));
+      notify("Site photos uploaded securely.");
     } catch (error) {
-      notify(error?.message || "Could not attach photos.");
+      notify(error?.message || "Could not upload site photos.");
     }
+  }
+
+  async function openPhoto(photo) {
+    const dataUrl = photoDataUrl(photo);
+    if (dataUrl) { setPhotoPreview(dataUrl); return; }
+    const path = photoStoragePath(photo);
+    if (!path) return;
+    const { data, error } = await supabase.storage.from("site-report-photos").createSignedUrl(path, 3600);
+    if (error || !data?.signedUrl) return notify(error?.message || "Could not open this photo.");
+    setPhotoPreview(data.signedUrl);
+  }
+
+  async function resolveReportPhoto(photo) {
+    const dataUrl = photoDataUrl(photo);
+    if (dataUrl) return { dataUrl, originalUrl: null };
+    const path = photoStoragePath(photo);
+    if (!path) return null;
+    const { data, error } = await supabase.storage.from("site-report-photos").createSignedUrl(path, 60 * 60 * 24 * 30);
+    if (error || !data?.signedUrl) throw error || new Error("Could not create a secure photo link.");
+    const response = await fetch(data.signedUrl);
+    if (!response.ok) throw new Error("Could not download a site photo for the PDF.");
+    const blob = await response.blob();
+    const dataUrlValue = await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = () => reject(new Error("Could not prepare photo for the PDF."));
+      reader.readAsDataURL(blob);
+    });
+    return { dataUrl: dataUrlValue, originalUrl: data.signedUrl };
   }
 
   function startVoice(field) {
@@ -828,7 +887,7 @@ function App() {
     }
   }
 
-  function buildReportPDF(report) {
+  async function buildReportPDF(report) {
     const doc = new jsPDF({ unit: "mm", format: "a4" });
     const margin = 18;
     const maxWidth = 174;
@@ -914,32 +973,36 @@ function App() {
       [company.phone, company.email, company.address].filter(Boolean).forEach(line => addParagraph(line, 8));
     }
 
-    const photos = Array.isArray(report.photos) ? report.photos.filter(photo => typeof photo === "string" && photo.startsWith("data:image/")) : [];
+    const photos = Array.isArray(report.photos) ? report.photos : [];
     if (photos.length) {
       newPage();
       addHeading(`Site photographs (${photos.length})`);
-      photos.forEach((photo, index) => {
+      for (let index = 0; index < photos.length; index += 1) {
         try {
-          const props = doc.getImageProperties(photo);
+          const resolved = await resolveReportPhoto(photos[index]);
+          if (!resolved?.dataUrl) continue;
+          const props = doc.getImageProperties(resolved.dataUrl);
           const maxW = 174;
-          const maxH = 88;
+          const maxH = 112;
           const ratio = Math.min(maxW / props.width, maxH / props.height);
           const width = props.width * ratio;
           const height = props.height * ratio;
           if (y + height + 12 > pageHeight) newPage();
           doc.setDrawColor(220, 224, 230);
           doc.roundedRect(margin - 1, y - 1, width + 2, height + 2, 2, 2, "S");
-          doc.addImage(photo, margin, y, width, height);
+          doc.addImage(resolved.dataUrl, margin, y, width, height);
+          if (resolved.originalUrl) doc.link(margin, y, width, height, { url: resolved.originalUrl });
           y += height + 6;
           doc.setFont("helvetica", "normal");
           doc.setFontSize(8);
           doc.setTextColor(90, 98, 110);
-          doc.text(`Site photo ${index + 1} of ${photos.length}`, margin, y);
+          doc.text(resolved.originalUrl ? `Site photo ${index + 1} of ${photos.length} - tap image to open original` : `Site photo ${index + 1} of ${photos.length}`, margin, y);
           y += 10;
         } catch (error) {
           console.warn("Could not add a site photo to the PDF.", error);
+          addParagraph(`Site photo ${index + 1} could not be embedded.`, 8);
         }
-      });
+      }
     }
 
     const pageCount = doc.getNumberOfPages();
@@ -961,14 +1024,16 @@ function App() {
     return `CONSTRUCTION-SITE-${safeName}-${report.date || "Report"}.pdf`;
   }
 
-  function generatePDF(report) {
-    const doc = buildReportPDF(report);
-    doc.save(reportFileName(report));
-    notify("Formatted PDF with photos is downloading.");
+  async function generatePDF(report) {
+    try {
+      const doc = await buildReportPDF(report);
+      doc.save(reportFileName(report));
+      notify("Formatted PDF with photos is downloading.");
+    } catch (error) { notify(error?.message || "Could not generate the PDF."); }
   }
 
   async function shareReport(report) {
-    const doc = buildReportPDF(report);
+    const doc = await buildReportPDF(report);
     const blob = doc.output("blob");
     const file = new File([blob], reportFileName(report), { type: "application/pdf" });
     const shareText = `${company.name || "Construction Site AI"} — Daily Site Report for ${report.projectName}`;
@@ -1187,7 +1252,7 @@ function App() {
                   <div className="field"><div className="field-heading"><label>Additional notes</label><button className="voice-action" type="button" onClick={() => startVoice("notes")}><Mic size={13} /></button></div><textarea rows="3" value={reportForm.notes} onChange={event => updateReportField("notes", event.target.value)} placeholder="Instructions and follow-up" /></div>
                   <div className="field"><label>Site photos</label><label className="upload-tile"><Camera size={20} /><strong>Add site photos</strong><small>Up to 8 images; compressed for easier saving</small><input type="file" accept="image/*" multiple onChange={handlePhotos} /></label></div>
                 </div>
-                {reportForm.photos.length > 0 && <div className="photo-grid">{reportForm.photos.map((photo, index) => <div className="photo-item" key={`${index}-${photo.slice(0, 22)}`}><button type="button" className="photo-preview-trigger" onClick={() => setPhotoPreview(photo)} aria-label={`Open site photo ${index + 1}`}><img src={photo} alt={`Site photograph ${index + 1}`} /></button><button type="button" aria-label="Remove photo" onClick={() => updateReportField("photos", reportForm.photos.filter((_, photoIndex) => photoIndex !== index))}><X size={15} /></button></div>)}</div>}
+                {reportForm.photos.length > 0 && <div className="photo-grid">{reportForm.photos.map((photo, index) => <div className="photo-item" key={`${index}-${photoKey(photo)}`}><button type="button" className="photo-preview-trigger" onClick={() => openPhoto(photo)} aria-label={`Open site photo ${index + 1}`}>{(photoDataUrl(photo) || photoUrls[photoStoragePath(photo)]) ? <img src={photoDataUrl(photo) || photoUrls[photoStoragePath(photo)]} alt={`Site photograph ${index + 1}`} /> : <Camera size={24} />}</button><button type="button" aria-label="Remove photo" onClick={() => updateReportField("photos", reportForm.photos.filter((_, photoIndex) => photoIndex !== index))}><X size={15} /></button></div>)}</div>}
                 <div className="form-actions"><button className="btn btn-primary" type="submit" disabled={saving || !projects.length}><Save size={16} />{saving ? "Saving report..." : editingReportId ? "Update report" : "Save daily report"}</button><button className="btn btn-dark" type="button" onClick={() => { setEditingReportId(null); setReportForm({ ...EMPTY_REPORT, engineer: userName, projectId: projects[0]?.id || "", projectName: projects[0]?.name || "", projectCode: projects[0]?.code || "" }); }}>Clear form</button></div>
               </form>
             </section>
