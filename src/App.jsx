@@ -22,7 +22,7 @@ const ARABIC_TEXT = {
   "Construction operations":"إدارة الإنشاءات","Construction management workspace":"مساحة إدارة الإنشاءات",
   "Construction Site Management":"إدارة مواقع البناء","Secure company workspace":"مساحة عمل آمنة للشركة",
   "Create your SITELOG AI account":"إنشاء حساب SITELOG AI","Welcome back":"مرحباً بعودتك",
-  "Apni account type select karein.":"اختر نوع الحساب.","Apne secure SITELOG AI account mein login karein.":"سجّل الدخول إلى حسابك الآمن في SITELOG AI.",
+  "Choose your account type.":"اختر نوع الحساب.","Sign in to your secure SITELOG AI account.":"سجّل الدخول إلى حسابك الآمن في SITELOG AI.",
   "Company Sign Up":"تسجيل الشركة","Engineer Sign Up":"تسجيل المهندس","Full name":"الاسم الكامل","Company name":"اسم الشركة",
   "Email address":"البريد الإلكتروني","Password":"كلمة المرور","Your full name":"اكتب اسمك الكامل","Construction company":"شركة مقاولات",
   "At least 6 characters":"6 أحرف على الأقل","Please wait...":"يرجى الانتظار...","Create company account":"إنشاء حساب شركة",
@@ -104,7 +104,7 @@ Object.assign(ARABIC_TEXT, {
   "Capture work progress and keep site records organised.": "سجّل تقدم العمل وحافظ على تنظيم سجلات الموقع.",
   "Plan, track and organise your construction projects.": "خطط لمشاريع البناء وتابعها ونظّمها.",
   "A clear picture of your active construction work.": "نظرة واضحة على أعمال البناء الجارية.",
-  "Engineer account active hai, lekin abhi kisi company/project se assign nahi hua. Company admin se invitation ya assignment ka intezar karein. Apna login safe rakhein.": "حساب المهندس نشط، ولكن لم يتم تعيينه لشركة أو مشروع بعد. يرجى انتظار دعوة أو تعيين من مسؤول الشركة.",
+  "Your engineer account is active, but it has not been assigned to a company or project yet. Please wait for an invitation or assignment from your company administrator.": "حساب المهندس نشط، ولكن لم يتم تعيينه لشركة أو مشروع بعد. يرجى انتظار دعوة أو تعيين من مسؤول الشركة.",
   "Enter your email and password.": "أدخل البريد الإلكتروني وكلمة المرور.",
   "Valid engineer email enter karein.": "أدخل بريداً إلكترونياً صحيحاً للمهندس.",
   "Invitation email sent successfully.": "تم إرسال دعوة البريد الإلكتروني بنجاح.",
@@ -127,6 +127,11 @@ Object.assign(ARABIC_TEXT, {
   "Invitation email sent successfully.": "تم إرسال دعوة البريد الإلكتروني بنجاح.",
   "Could not send invitation:": "تعذر إرسال الدعوة:",
   "Could not send engineer invitation.": "تعذر إرسال دعوة المهندس.",
+});
+Object.assign(ARABIC_TEXT, {
+  "Choose your account type.": "اختر نوع الحساب.",
+  "Sign in to your secure SITELOG AI account.": "سجّل الدخول إلى حسابك الآمن في SITELOG AI.",
+  "Your engineer account is active, but it has not been assigned to a company or project yet. Please wait for an invitation or assignment from your company administrator.": "حساب المهندس نشط، ولكن لم يتم تعيينه لشركة أو مشروع بعد. يرجى انتظار دعوة أو تعيين من مسؤول الشركة.",
 });
 const LANGUAGE_LABELS = { ar: "العربية", en: "English" };
 function translateNode(node, language) {
@@ -925,7 +930,8 @@ function App() {
             </>}
             <div className="field"><label>Email address</label><input required type="email" autoComplete="email" value={authForm.email} onChange={event => setAuthForm({ ...authForm, email: event.target.value })} placeholder="you@company.com" /></div>
             <div className="field"><label>Password</label><input required minLength={6} type="password" autoComplete={authMode === "signup" ? "new-password" : "current-password"} value={authForm.password} onChange={event => setAuthForm({ ...authForm, password: event.target.value })} placeholder="At least 6 characters" /></div>
-            {authMode === "login" && <button type="button" className="text-button forgot-password" onClick={requestPasswordReset} disabled={authBusy}>{language === "ar" ? "هل نسيت كلمة المرور؟" : "Forgot password?"}</button>}\n            {authMessage && <div className="inline-message" role="status">{authMessage}</div>}
+            {authMode === "login" && <button type="button" className="text-button forgot-password" onClick={requestPasswordReset} disabled={authBusy}>{language === "ar" ? "هل نسيت كلمة المرور؟" : "Forgot password?"}</button>}
+            {authMessage && <div className="inline-message" role="status">{authMessage}</div>}
             <button className="btn btn-primary" type="submit" disabled={authBusy}>{authBusy ? <RefreshCw size={17} /> : authMode === "signup" ? <UserPlus size={17} /> : <LogIn size={17} />}{authBusy ? "Please wait..." : authMode === "signup" ? (signupRole === "company" ? "Create company account" : "Create engineer account") : "Login securely"}</button>
           </form>
           <div className="auth-switch">{authMode === "signup" ? "Already have an account?" : "New to SITELOG AI?"}<button type="button" className="text-button" onClick={() => { setAuthMode(authMode === "signup" ? "login" : "signup"); setAuthMessage(""); }}>{authMode === "signup" ? "Login" : "Create account"}</button></div>
