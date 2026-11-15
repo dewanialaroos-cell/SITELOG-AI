@@ -133,6 +133,11 @@ Object.assign(ARABIC_TEXT, {
   "Sign in to your secure SITELOG AI account.": "سجّل الدخول إلى حسابك الآمن في SITELOG AI.",
   "Your engineer account is active, but it has not been assigned to a company or project yet. Please wait for an invitation or assignment from your company administrator.": "حساب المهندس نشط، ولكن لم يتم تعيينه لشركة أو مشروع بعد. يرجى انتظار دعوة أو تعيين من مسؤول الشركة.",
 });
+Object.assign(ARABIC_TEXT, {
+  "Choose your account type.": "اختر نوع الحساب.",
+  "Sign in to your secure SITELOG AI account.": "سجّل الدخول إلى حسابك الآمن في SITELOG AI.",
+  "Your engineer account is active, but it has not been assigned to a company or project yet. Please wait for an invitation or assignment from your company administrator.": "حساب المهندس نشط، ولكن لم يتم تعيينه لشركة أو مشروع بعد. يرجى انتظار دعوة أو تعيين من مسؤول الشركة.",
+});
 const LANGUAGE_LABELS = { ar: "العربية", en: "English" };
 function translateNode(node, language) {
   if (language !== "ar") return node;
@@ -981,7 +986,7 @@ function App() {
           </div>
           <div className="auth-kicker"><ShieldCheck size={15} /> Secure company workspace</div>
           <h2>{authMode === "signup" ? "Create your SITELOG AI account" : "Welcome back"}</h2>
-          <p>{authMode === "signup" ? "Apni account type select karein." : "Apne secure SITELOG AI account mein login karein."}</p>
+          <p>{authMode === "signup" ? "Choose your account type." : "Sign in to your secure SITELOG AI account."}</p>
           {authMode === "signup" && <div className="form-grid">
             <button type="button" className={`btn ${signupRole === "company" ? "btn-primary" : "btn-dark"}`} onClick={() => { setSignupRole("company"); setAuthMessage(""); }}>Company Sign Up</button>
             <button type="button" className={`btn ${signupRole === "engineer" ? "btn-primary" : "btn-dark"}`} onClick={() => { setSignupRole("engineer"); setAuthMessage(""); }}>Engineer Sign Up</button>
@@ -1011,7 +1016,7 @@ function App() {
           {languagePicker}
           <div className="login-brand"><div className="brand-mark">S</div><div><h1>Set up your workspace</h1><p>One company workspace for your project team.</p></div></div>
           {workspaceError && <div className="inline-message">{workspaceError}</div>}
-          {authUser.user_metadata?.signup_role === "engineer" ? <div className="inline-message" role="status">Engineer account active hai, lekin abhi kisi company/project se assign nahi hua. Company admin se invitation ya assignment ka intezar karein. Apna login safe rakhein.</div> : <form className="login-form" onSubmit={createWorkspace}>
+          {authUser.user_metadata?.signup_role === "engineer" ? <div className="inline-message" role="status">Your engineer account is active, but it has not been assigned to a company or project yet. Please wait for an invitation or assignment from your company administrator.</div> : <form className="login-form" onSubmit={createWorkspace}>
             <div className="field"><label>Company name</label><input required value={companySetupName} onChange={event => setCompanySetupName(event.target.value)} placeholder="Your construction company" /></div>
             <button className="btn btn-primary" type="submit" disabled={saving}><Building2 size={17} />{saving ? "Creating workspace..." : "Create company workspace"}</button>
           </form>}
