@@ -38,7 +38,7 @@ Deno.serve(async (req) => {
     const email = String(body.email || "").trim().toLowerCase();
     const companyId = String(body.company_id || "");
     const projectId = String(body.project_id || "");
-    if (!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email) || !companyId || !projectId) {
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || !companyId || !projectId) {
       return respond({ error: "Valid email, company and project are required." }, 400);
     }
 
@@ -69,30 +69,25 @@ Deno.serve(async (req) => {
 
     // Resolve an already-registered engineer by email before attempting a new invite.
     let targetUser: any = null;
-    const { data: firstPage, error: usersError } = await admin.auth.admin.listUsers({
-      page: 1,
-      perPage: 1000,
-    });
-    if (usersError) throw usersError;
-    targetUser = firstPage.users.find((user: any) => user.email?.toLowerCase() === email) || null;
+    const perPage = 1000;
+    for (let page = 1; page <= 100; page += 1) {
+      const { data, error: usersError } = await admin.auth.admin.listUsers({ page, perPage });
+      if (usersError) throw usersError;
+      targetUser = data.users.find((user: any) => user.email?.toLowerCase() === email) || null;
+      if (targetUser || data.users.length < perPage) break;
+    }
 
     let existingUser = Boolean(targetUser);
     if (targetUser) {
-      const signupRole = targetUser.user_metadata?.signup_role;
-      if (signupRole !== "engineer") {
-        return respond({ error: "This email belongs to a company account, not an engineer account." }, 409);
-      }
-      if (!signupRole) {
-        const { data: currentMembership, error: currentMembershipError } = await admin
-          .from("company_members")
-          .select("role")
-          .eq("company_id", companyId)
-          .eq("user_id", targetUser.id)
-          .maybeSingle();
-        if (currentMembershipError) throw currentMembershipError;
-        if (currentMembership && !["engineer", "owner", "admin"].includes(currentMembership.role)) {
-          return respond({ error: "This account is not registered as an engineer." }, 409);
-        }
+      // User-editable auth metadata is not a trusted authorization source.
+      // Do not silently downgrade company owner/admin accounts.
+      const { data: targetMemberships, error: targetMembershipError } = await admin
+        .from("company_members")
+        .select("role")
+        .eq("user_id", targetUser.id);
+      if (targetMembershipError) throw targetMembershipError;
+      if ((targetMemberships || []).some((item: any) => ["owner", "admin"].includes(item.role))) {
+        return respond({ error: "This email belongs to a company owner/admin account and cannot be assigned as an engineer." }, 409);
       }
     } else {
       const { data: invited, error: inviteError } = await admin.auth.admin.inviteUserByEmail(email);
