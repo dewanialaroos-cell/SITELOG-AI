@@ -867,8 +867,9 @@ function App() {
 
   if (!authUser) {
     return (
-      <div className="login-wrap">
+      <Localized language={language}><div className="login-wrap">
         <div className="login-card">
+          {languagePicker}
           <div className="login-brand">
             <div className="brand-mark">S</div>
             <div><h1>SITELOG AI</h1><p>Construction Site Management</p></div>
@@ -893,14 +894,15 @@ function App() {
           <div className="auth-switch">{authMode === "signup" ? "Already have an account?" : "New to SITELOG AI?"}<button type="button" className="text-button" onClick={() => { setAuthMode(authMode === "signup" ? "login" : "signup"); setAuthMessage(""); }}>{authMode === "signup" ? "Login" : "Create account"}</button></div>
           <div className="security-foot"><ShieldCheck size={14} /> Your data is connected to your Supabase account.</div>
         </div>
-      </div>
+      </div></Localized>
     );
   }
 
   if (!companyId) {
     return (
-      <div className="login-wrap">
+      <Localized language={language}><div className="login-wrap">
         <div className="login-card">
+          {languagePicker}
           <div className="login-brand"><div className="brand-mark">S</div><div><h1>Set up your workspace</h1><p>One company workspace for your project team.</p></div></div>
           {workspaceError && <div className="inline-message">{workspaceError}</div>}
           {authUser.user_metadata?.signup_role === "engineer" ? <div className="inline-message" role="status">Engineer account active hai, lekin abhi kisi company/project se assign nahi hua. Company admin se invitation ya assignment ka intezar karein. Apna login safe rakhein.</div> : <form className="login-form" onSubmit={createWorkspace}>
@@ -909,7 +911,7 @@ function App() {
           </form>}
           <button className="btn btn-dark" type="button" onClick={logout}><LogOut size={16} />Sign out</button>
         </div>
-      </div>
+      </div></Localized>
     );
   }
 
@@ -922,13 +924,14 @@ function App() {
   const [pageTitle, pageSubtitle] = pageTitles[page] || pageTitles.dashboard;
 
   return (
-    <div className="app-shell">
+    <Localized language={language}><div className="app-shell">
       <header className="topbar">
         <div className="brand">
           <div className="brand-mark">S</div>
           <div className="brand-copy"><strong>SITELOG AI</strong><span>Construction operations</span></div>
         </div>
         <div className="topbar-actions">
+          {languagePicker}
           <span className="user-chip"><span className="avatar-mini">{shortName(userName)}</span><span>{userName}</span></span>
           <button className="btn btn-dark btn-small" onClick={logout}><LogOut size={16} />Sign out</button>
         </div>
@@ -1084,7 +1087,7 @@ function App() {
         </main>
       </div>
       {notice && <div className="toast" role="status">{notice}</div>}
-    </div>
+    </div></Localized>
   );
 }
 
