@@ -12,7 +12,7 @@ const EMPTY_COMPANY = { id: null, name: "", phone: "", email: "", address: "" };
 const EMPTY_PROJECT = { id: null, name: "", code: "", client: "", location: "" };
 const EMPTY_REPORT = {
   id: null, projectId: "", projectName: "", projectCode: "", engineer: "",
-  date: new Date().toISOString().slice(0, 10), weather: "", startTime: "", endTime: "",
+  date: new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 10), workersCount: 0, weather: "", startTime: "", endTime: "",
   workDone: "", labour: "", materials: "", equipment: "", issues: "", notes: "", photos: []
 };
 
@@ -21,13 +21,13 @@ const ARABIC_TEXT = {
   "Overview":"نظرة عامة","Projects":"المشاريع","Daily Reports":"التقارير اليومية","Company":"الشركة",
   "Construction operations":"إدارة الإنشاءات","Construction management workspace":"مساحة إدارة الإنشاءات",
   "Construction Site Management":"إدارة مواقع البناء","Secure company workspace":"مساحة عمل آمنة للشركة",
-  "Create your SITELOG AI account":"إنشاء حساب SITELOG AI","Welcome back":"مرحباً بعودتك",
-  "Choose your account type.":"اختر نوع الحساب.","Sign in to your secure SITELOG AI account.":"سجّل الدخول إلى حسابك الآمن في SITELOG AI.",
+  "Create your Construction Site AI account":"إنشاء حساب Construction Site AI","Welcome back":"مرحباً بعودتك",
+  "Choose your account type.":"اختر نوع الحساب.","Sign in to your secure Construction Site AI account.":"سجّل الدخول إلى حسابك الآمن في Construction Site AI.",
   "Company Sign Up":"تسجيل الشركة","Engineer Sign Up":"تسجيل المهندس","Full name":"الاسم الكامل","Company name":"اسم الشركة",
   "Email address":"البريد الإلكتروني","Password":"كلمة المرور","Your full name":"اكتب اسمك الكامل","Construction company":"شركة مقاولات",
-  "At least 6 characters":"6 أحرف على الأقل","Please wait...":"يرجى الانتظار...","Create company account":"إنشاء حساب شركة",
+  "At least 8 characters":"8 أحرف على الأقل","Please wait...":"يرجى الانتظار...","Create company account":"إنشاء حساب شركة",
   "Create engineer account":"إنشاء حساب مهندس","Login securely":"تسجيل الدخول بأمان","Already have an account?":"لديك حساب بالفعل؟",
-  "New to SITELOG AI?":"جديد في SITELOG AI؟","Login":"تسجيل الدخول","Create account":"إنشاء حساب",
+  "New to Construction Site AI?":"جديد في Construction Site AI؟","Login":"تسجيل الدخول","Create account":"إنشاء حساب",
   "Your data is connected to your Supabase account.":"بياناتك مرتبطة بحساب Supabase الخاص بك.",
   "Set up your workspace":"إعداد مساحة العمل","One company workspace for your project team.":"مساحة شركة واحدة لفريق مشاريعك.",
   "Company workspace":"مساحة الشركة","Team member":"عضو الفريق","Sign out":"تسجيل الخروج","Create company workspace":"إنشاء مساحة الشركة",
@@ -106,7 +106,7 @@ Object.assign(ARABIC_TEXT, {
   "A clear picture of your active construction work.": "نظرة واضحة على أعمال البناء الجارية.",
   "Your engineer account is active, but it has not been assigned to a company or project yet. Please wait for an invitation or assignment from your company administrator.": "حساب المهندس نشط، ولكن لم يتم تعيينه لشركة أو مشروع بعد. يرجى انتظار دعوة أو تعيين من مسؤول الشركة.",
   "Enter your email and password.": "أدخل البريد الإلكتروني وكلمة المرور.",
-  "Valid engineer email enter karein.": "أدخل بريداً إلكترونياً صحيحاً للمهندس.",
+  "Enter a valid engineer email address.": "أدخل بريداً إلكترونياً صحيحاً للمهندس.",
   "Invitation email sent successfully.": "تم إرسال دعوة البريد الإلكتروني بنجاح.",
   "Invitation email sent and project assigned.": "تم إرسال الدعوة وتعيين المشروع بنجاح.",
   "Workspace could not be loaded.": "تعذر تحميل مساحة العمل.",
@@ -130,13 +130,48 @@ Object.assign(ARABIC_TEXT, {
 });
 Object.assign(ARABIC_TEXT, {
   "Choose your account type.": "اختر نوع الحساب.",
-  "Sign in to your secure SITELOG AI account.": "سجّل الدخول إلى حسابك الآمن في SITELOG AI.",
+  "Sign in to your secure Construction Site AI account.": "سجّل الدخول إلى حسابك الآمن في Construction Site AI.",
   "Your engineer account is active, but it has not been assigned to a company or project yet. Please wait for an invitation or assignment from your company administrator.": "حساب المهندس نشط، ولكن لم يتم تعيينه لشركة أو مشروع بعد. يرجى انتظار دعوة أو تعيين من مسؤول الشركة.",
 });
 Object.assign(ARABIC_TEXT, {
   "Choose your account type.": "اختر نوع الحساب.",
-  "Sign in to your secure SITELOG AI account.": "سجّل الدخول إلى حسابك الآمن في SITELOG AI.",
+  "Sign in to your secure Construction Site AI account.": "سجّل الدخول إلى حسابك الآمن في Construction Site AI.",
   "Your engineer account is active, but it has not been assigned to a company or project yet. Please wait for an invitation or assignment from your company administrator.": "حساب المهندس نشط، ولكن لم يتم تعيينه لشركة أو مشروع بعد. يرجى انتظار دعوة أو تعيين من مسؤول الشركة.",
+});
+Object.assign(ARABIC_TEXT, {
+  "Enter a valid engineer email address.": "أدخل بريداً إلكترونياً صحيحاً للمهندس.",
+  "Engineer account created. Check your inbox and spam folder for the verification email. After verifying, sign in and wait for your company admin to assign a project.": "تم إنشاء حساب المهندس. تحقق من صندوق الوارد والبريد غير المرغوب فيه للعثور على رسالة التحقق. بعد تأكيد البريد، سجّل الدخول وانتظر مسؤول الشركة لتعيين مشروع لك.",
+  "Company account created. Check your inbox and spam folder for the verification email.": "تم إنشاء حساب الشركة. تحقق من صندوق الوارد والبريد غير المرغوب فيه للعثور على رسالة التحقق.",
+  "The invitation email was not confirmed by the server.": "لم يؤكد الخادم إرسال دعوة البريد الإلكتروني.",
+  "Only this company's owner/admin can invite engineers.": "يمكن لمالك هذه الشركة أو مسؤولها فقط دعوة المهندسين.",
+  "Selected project does not belong to this company.": "المشروع المحدد لا يتبع هذه الشركة.",
+  "This email already has an account. Existing-user assignment is not enabled in this invitation flow yet.": "هذا البريد الإلكتروني لديه حساب بالفعل. تعيين المستخدمين الحاليين غير متاح في مسار الدعوة هذا حالياً.",
+  "Supabase did not return the invited user ID.": "لم يُرجع Supabase معرّف المستخدم المدعو.",
+  "Supabase Edge Function secrets are not configured.": "لم يتم إعداد أسرار وظيفة Supabase.",
+  "Login required.": "يلزم تسجيل الدخول.",
+  "Invalid or expired login session.": "جلسة تسجيل الدخول غير صالحة أو انتهت صلاحيتها.",
+  "Valid email, company and project are required.": "يلزم إدخال بريد إلكتروني وشركة ومشروع صالحين.",
+  "Email address not authorized": "عنوان البريد الإلكتروني غير مصرح له بالإرسال. يلزم إعداد SMTP مخصص في Supabase.",
+  "Email rate limit exceeded": "تم تجاوز حد إرسال رسائل البريد الإلكتروني. حاول لاحقاً أو أعد إعداد خدمة SMTP.",
+});
+Object.assign(ARABIC_TEXT, {
+  "Email address not authorized": "هذا البريد الإلكتروني غير مصرح له بالإرسال. يجب إعداد خادم SMTP مخصص في Supabase.",
+  "email address not authorized": "هذا البريد الإلكتروني غير مصرح له بالإرسال. يجب إعداد خادم SMTP مخصص في Supabase.",
+  "email rate limit exceeded": "تم تجاوز الحد المسموح لإرسال البريد الإلكتروني. حاول لاحقاً أو أعد إعداد خدمة SMTP.",
+  "Email rate limit exceeded": "تم تجاوز الحد المسموح لإرسال البريد الإلكتروني. حاول لاحقاً أو أعد إعداد خدمة SMTP.",
+  "Invalid login credentials": "بيانات تسجيل الدخول غير صحيحة.",
+  "User already registered": "هذا البريد الإلكتروني مسجل بالفعل.",
+  "Password should be at least 6 characters": "يجب أن تتكون كلمة المرور من 6 أحرف على الأقل.",
+  "Signup requires a valid password": "يلزم إدخال كلمة مرور صحيحة لإنشاء الحساب.",
+  "Email not confirmed": "لم يتم تأكيد البريد الإلكتروني بعد. تحقق من رسالة التحقق في بريدك.",
+  "Too many requests": "عدد الطلبات كبير جداً. يرجى المحاولة لاحقاً.",
+});
+Object.assign(ARABIC_TEXT, {
+  "Existing engineer assigned to the selected project. They can sign in to access it.": "تم تعيين المهندس الحالي للمشروع المحدد. يمكنه تسجيل الدخول للوصول إليه.",
+  "Existing engineer assigned successfully.": "تم تعيين المهندس الحالي بنجاح.",
+  "Worker count": "عدد العمال",
+  "Total workers on site": "إجمالي العمال في الموقع",
+  "Workers / manpower count": "عدد العمال والقوى العاملة",
 });
 const LANGUAGE_LABELS = { ar: "العربية", en: "English" };
 function translateNode(node, language) {
@@ -184,6 +219,7 @@ function toReport(row, projectMap = {}) {
     projectCode: row.project_code || project.code || "",
     engineer: row.engineer || "",
     date: row.report_date || "",
+    workersCount: Number(row.workers_count || 0),
     weather: row.weather || "",
     startTime: row.start_time || "",
     endTime: row.end_time || "",
@@ -198,6 +234,10 @@ function toReport(row, projectMap = {}) {
     createdBy: row.created_by
   };
 }
+
+function photoStoragePath(photo) { return photo && typeof photo === "object" ? photo.storagePath || "" : ""; }
+function photoKey(photo) { return typeof photo === "string" ? photo.slice(0, 40) : photoStoragePath(photo) || String(photo?.name || "site-photo"); }
+function photoDataUrl(photo) { return typeof photo === "string" && photo.startsWith("data:image/") ? photo : ""; }
 
 function dateLabel(value) {
   if (!value) return "Date not set";
@@ -238,6 +278,8 @@ function App() {
   const [projectForm, setProjectForm] = useState(EMPTY_PROJECT);
   const [showProjectForm, setShowProjectForm] = useState(false);
   const [reportForm, setReportForm] = useState(EMPTY_REPORT);
+  const [photoPreview, setPhotoPreview] = useState(null);
+  const [photoUrls, setPhotoUrls] = useState({});
   const [editingReportId, setEditingReportId] = useState(null);
   const [saving, setSaving] = useState(false);
   const [notice, setNotice] = useState("");
@@ -247,6 +289,21 @@ function App() {
   const [inviteMessage, setInviteMessage] = useState("");
 
   const isAdmin = companyRole === "owner" || companyRole === "admin";
+  useEffect(() => {
+    let active = true;
+    async function refreshPhotoUrls() {
+      const paths = [...new Set((reportForm.photos || []).map(photoStoragePath).filter(Boolean))];
+      if (!paths.length) { if (active) setPhotoUrls({}); return; }
+      const entries = await Promise.all(paths.map(async path => {
+        const { data, error } = await supabase.storage.from("site-report-photos").createSignedUrl(path, 3600);
+        return [path, error ? "" : data?.signedUrl || ""];
+      }));
+      if (active) setPhotoUrls(Object.fromEntries(entries));
+    }
+    refreshPhotoUrls().catch(error => console.warn("Could not refresh private photo previews.", error));
+    return () => { active = false; };
+  }, [reportForm.photos]);
+
   useEffect(() => {
     try { localStorage.setItem("sitelog-language", language); } catch { /* storage may be unavailable */ }
     document.documentElement.lang = language;
@@ -455,7 +512,7 @@ function App() {
         if (error) throw error;
         if (!data.session) {
           setAuthMode("login");
-          setAuthMessage(signupRole === "engineer" ? "Engineer account created. Verify your email and sign in; then wait for your company admin to assign a project." : "Company account created. Verify your email, then sign in.");
+          setAuthMessage(signupRole === "engineer" ? "Engineer account created. Check your inbox and spam folder for the verification email. After verifying, sign in and wait for your company admin to assign a project." : "Company account created. Check your inbox and spam folder for the verification email.");
         } else {
           setAuthMessage("Account created. Loading your workspace...");
         }
@@ -548,7 +605,7 @@ function App() {
     setInviteMessage("Sending invitation request...");
     const email = inviteEmail.trim().toLowerCase();
     if (!isAdmin || !companyId) { setInviteMessage("Only a company owner or admin can invite an engineer."); return; }
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { setInviteMessage("Valid engineer email enter karein."); return; }
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { setInviteMessage("Enter a valid engineer email address."); return; }
     if (!inviteProjectId) { setInviteMessage("Select a project for the engineer."); return; }
     setInviteBusy(true);
     try {
@@ -561,10 +618,12 @@ function App() {
         throw new Error(detail);
       }
       if (data?.error) throw new Error(data.error);
+      if (data?.success !== true) throw new Error(data?.message || "The invitation email was not confirmed by the server.");
       setInviteEmail("");
       setInviteProjectId("");
-      setInviteMessage("Invitation email sent and project assigned.");
-      notify("Invitation email sent successfully.");
+      const existingAssigned = data?.existing_user === true;
+      setInviteMessage(existingAssigned ? "Existing engineer assigned to the selected project. They can sign in to access it." : "Invitation email sent and project assigned.");
+      notify(existingAssigned ? "Existing engineer assigned successfully." : "Invitation email sent successfully.");
       setWorkspaceRefresh(value => value + 1);
     } catch (error) {
       setInviteMessage(`Could not send invitation: ${error?.message || "Unknown error"}`);
@@ -706,20 +765,59 @@ function App() {
     const files = Array.from(event.target.files || []).filter(file => file.type.startsWith("image/")).slice(0, 8);
     event.target.value = "";
     if (!files.length) return;
+    if (!companyId || !reportForm.projectId) return notify("Select a project before uploading site photos.");
     try {
       const compressed = await Promise.all(files.map(compressPhoto));
-      setReportForm(previous => ({ ...previous, photos: [...previous.photos, ...compressed].slice(0, 8) }));
-      notify("Site photos attached.");
+      const uploaded = await Promise.all(compressed.map(async (dataUrl, index) => {
+        const blob = await fetch(dataUrl).then(response => response.blob());
+        const path = `${companyId}/${reportForm.projectId}/${crypto.randomUUID()}.jpg`;
+        const { error } = await supabase.storage.from("site-report-photos").upload(path, blob, {
+          contentType: "image/jpeg", upsert: false, cacheControl: "3600"
+        });
+        if (error) throw error;
+        return { storagePath: path, name: files[index]?.name || `site-photo-${index + 1}.jpg` };
+      }));
+      setReportForm(previous => ({ ...previous, photos: [...previous.photos, ...uploaded].slice(0, 8) }));
+      notify("Site photos uploaded securely.");
     } catch (error) {
-      notify(error?.message || "Could not attach photos.");
+      notify(error?.message || "Could not upload site photos.");
     }
+  }
+
+  async function openPhoto(photo) {
+    const dataUrl = photoDataUrl(photo);
+    if (dataUrl) { setPhotoPreview(dataUrl); return; }
+    const path = photoStoragePath(photo);
+    if (!path) return;
+    const { data, error } = await supabase.storage.from("site-report-photos").createSignedUrl(path, 3600);
+    if (error || !data?.signedUrl) return notify(error?.message || "Could not open this photo.");
+    setPhotoPreview(data.signedUrl);
+  }
+
+  async function resolveReportPhoto(photo) {
+    const dataUrl = photoDataUrl(photo);
+    if (dataUrl) return { dataUrl, originalUrl: null };
+    const path = photoStoragePath(photo);
+    if (!path) return null;
+    const { data, error } = await supabase.storage.from("site-report-photos").createSignedUrl(path, 60 * 60 * 24 * 30);
+    if (error || !data?.signedUrl) throw error || new Error("Could not create a secure photo link.");
+    const response = await fetch(data.signedUrl);
+    if (!response.ok) throw new Error("Could not download a site photo for the PDF.");
+    const blob = await response.blob();
+    const dataUrlValue = await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = () => reject(new Error("Could not prepare photo for the PDF."));
+      reader.readAsDataURL(blob);
+    });
+    return { dataUrl: dataUrlValue, originalUrl: data.signedUrl };
   }
 
   function startVoice(field) {
     const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!Recognition) return notify("Voice typing is not supported by this browser.");
     const recognition = new Recognition();
-    recognition.lang = "en-US";
+    recognition.lang = language === "ar" ? "ar-SA" : "en-US";
     recognition.interimResults = false;
     recognition.onresult = event => {
       const spoken = event.results?.[0]?.[0]?.transcript || "";
@@ -739,9 +837,9 @@ function App() {
       const payload = {
         project_id: reportForm.projectId,
         created_by: authUser.id,
-        report_date: reportForm.date || new Date().toISOString().slice(0, 10),
+        report_date: reportForm.date || new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 10),
         work_description: reportForm.workDone.trim(),
-        workers_count: 0,
+        workers_count: Math.max(0, Number.parseInt(reportForm.workersCount, 10) || 0),
         materials_used: reportForm.materials.trim() || null,
         issues: reportForm.issues.trim() || null,
         project_code: reportForm.projectCode.trim() || null,
@@ -789,7 +887,7 @@ function App() {
     }
   }
 
-  function buildReportPDF(report) {
+  async function buildReportPDF(report) {
     const doc = new jsPDF({ unit: "mm", format: "a4" });
     const margin = 18;
     const maxWidth = 174;
@@ -802,7 +900,7 @@ function App() {
       doc.setTextColor(255, 219, 145);
       doc.setFont("helvetica", "bold");
       doc.setFontSize(21);
-      doc.text("SITELOG AI", margin, 18);
+      doc.text("Construction Site AI", margin, 18);
       doc.setTextColor(255, 255, 255);
       doc.setFontSize(9);
       doc.text(company.name || "Construction Site Management", margin, 27);
@@ -852,6 +950,7 @@ function App() {
     addParagraph(`Client: ${projects.find(item => item.id === report.projectId)?.client || "-"}`);
     addParagraph(`Location: ${projects.find(item => item.id === report.projectId)?.location || "-"}`);
     addParagraph(`Engineer: ${report.engineer || "-"}`);
+    addParagraph(`Workers / manpower count: ${Number(report.workersCount || 0)}`);
     addParagraph(`Date: ${dateLabel(report.date)}`);
     addParagraph(`Weather: ${report.weather || "-"}`);
     addParagraph(`Working hours: ${report.startTime || "-"} to ${report.endTime || "-"}`);
@@ -874,32 +973,36 @@ function App() {
       [company.phone, company.email, company.address].filter(Boolean).forEach(line => addParagraph(line, 8));
     }
 
-    const photos = Array.isArray(report.photos) ? report.photos.filter(photo => typeof photo === "string" && photo.startsWith("data:image/")) : [];
+    const photos = Array.isArray(report.photos) ? report.photos : [];
     if (photos.length) {
       newPage();
       addHeading(`Site photographs (${photos.length})`);
-      photos.forEach((photo, index) => {
+      for (let index = 0; index < photos.length; index += 1) {
         try {
-          const props = doc.getImageProperties(photo);
+          const resolved = await resolveReportPhoto(photos[index]);
+          if (!resolved?.dataUrl) continue;
+          const props = doc.getImageProperties(resolved.dataUrl);
           const maxW = 174;
-          const maxH = 88;
+          const maxH = 112;
           const ratio = Math.min(maxW / props.width, maxH / props.height);
           const width = props.width * ratio;
           const height = props.height * ratio;
           if (y + height + 12 > pageHeight) newPage();
           doc.setDrawColor(220, 224, 230);
           doc.roundedRect(margin - 1, y - 1, width + 2, height + 2, 2, 2, "S");
-          doc.addImage(photo, margin, y, width, height);
+          doc.addImage(resolved.dataUrl, margin, y, width, height);
+          if (resolved.originalUrl) doc.link(margin, y, width, height, { url: resolved.originalUrl });
           y += height + 6;
           doc.setFont("helvetica", "normal");
           doc.setFontSize(8);
           doc.setTextColor(90, 98, 110);
-          doc.text(`Site photo ${index + 1} of ${photos.length}`, margin, y);
+          doc.text(resolved.originalUrl ? `Site photo ${index + 1} of ${photos.length} - tap image to open original` : `Site photo ${index + 1} of ${photos.length}`, margin, y);
           y += 10;
         } catch (error) {
           console.warn("Could not add a site photo to the PDF.", error);
+          addParagraph(`Site photo ${index + 1} could not be embedded.`, 8);
         }
-      });
+      }
     }
 
     const pageCount = doc.getNumberOfPages();
@@ -910,7 +1013,7 @@ function App() {
       doc.setFont("helvetica", "normal");
       doc.setFontSize(8);
       doc.setTextColor(120, 128, 140);
-      doc.text("Generated by SITELOG AI", margin, 292);
+      doc.text("Generated by Construction Site AI", margin, 292);
       doc.text(`Page ${page} of ${pageCount}`, 192, 292, { align: "right" });
     }
     return doc;
@@ -918,24 +1021,26 @@ function App() {
 
   function reportFileName(report) {
     const safeName = String(report.projectName || "Report").replace(/[^a-z0-9-_]+/gi, "-").slice(0, 45);
-    return `SITELOG-${safeName}-${report.date || "Report"}.pdf`;
+    return `CONSTRUCTION-SITE-${safeName}-${report.date || "Report"}.pdf`;
   }
 
-  function generatePDF(report) {
-    const doc = buildReportPDF(report);
-    doc.save(reportFileName(report));
-    notify("Formatted PDF with photos is downloading.");
+  async function generatePDF(report) {
+    try {
+      const doc = await buildReportPDF(report);
+      doc.save(reportFileName(report));
+      notify("Formatted PDF with photos is downloading.");
+    } catch (error) { notify(error?.message || "Could not generate the PDF."); }
   }
 
   async function shareReport(report) {
-    const doc = buildReportPDF(report);
+    const doc = await buildReportPDF(report);
     const blob = doc.output("blob");
     const file = new File([blob], reportFileName(report), { type: "application/pdf" });
-    const shareText = `${company.name || "SITELOG AI"} — Daily Site Report for ${report.projectName}`;
+    const shareText = `${company.name || "Construction Site AI"} — Daily Site Report for ${report.projectName}`;
 
     try {
       if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-        await navigator.share({ files: [file], title: "SITELOG AI Daily Site Report", text: shareText });
+        await navigator.share({ files: [file], title: "Construction Site AI Daily Site Report", text: shareText });
         return;
       }
     } catch (error) {
@@ -955,7 +1060,7 @@ function App() {
   }
 
   if (!authReady || (authUser && workspaceLoading)) {
-    return <Localized language={language}><div className="login-wrap"><div className="login-card"><div className="login-brand"><div className="brand-mark">S</div><div><h1>SITELOG AI</h1><p>Construction management workspace</p></div></div><div className="empty"><RefreshCw size={24} className="spin-icon" /><p>Secure workspace is loading...</p></div></div>{languagePicker}</div></Localized>;
+    return <Localized language={language}><div className="login-wrap"><div className="login-card"><div className="login-brand"><div className="brand-mark">C</div><div><h1>Construction Site AI</h1><p>Construction management workspace</p></div></div><div className="empty"><RefreshCw size={24} className="spin-icon" /><p>Secure workspace is loading...</p></div></div>{languagePicker}</div></Localized>;
   }
 
   if (recoveryMode && authUser) {
@@ -963,7 +1068,7 @@ function App() {
       <Localized language={language}><div className="login-wrap">
         <div className="login-card">
           {languagePicker}
-          <div className="login-brand"><div className="brand-mark">S</div><div><h1>SITELOG AI</h1><p>Reset your password</p></div></div>
+          <div className="login-brand"><div className="brand-mark">C</div><div><h1>Construction Site AI</h1><p>Reset your password</p></div></div>
           <h2>{language === "ar" ? "إنشاء كلمة مرور جديدة" : "Choose a new password"}</h2>
           <form className="login-form" onSubmit={updateRecoveredPassword}>
             <div className="field"><label>{language === "ar" ? "كلمة المرور الجديدة" : "New password"}</label><input required minLength={8} type="password" autoComplete="new-password" value={recoveryPassword} onChange={event => setRecoveryPassword(event.target.value)} placeholder={language === "ar" ? "8 أحرف على الأقل" : "At least 8 characters"} /></div>
@@ -981,12 +1086,12 @@ function App() {
         <div className="login-card">
           {languagePicker}
           <div className="login-brand">
-            <div className="brand-mark">S</div>
-            <div><h1>SITELOG AI</h1><p>Construction Site Management</p></div>
+            <div className="brand-mark">C</div>
+            <div><h1>Construction Site AI</h1><p>Construction Site Management</p></div>
           </div>
           <div className="auth-kicker"><ShieldCheck size={15} /> Secure company workspace</div>
-          <h2>{authMode === "signup" ? "Create your SITELOG AI account" : "Welcome back"}</h2>
-          <p>{authMode === "signup" ? "Choose your account type." : "Sign in to your secure SITELOG AI account."}</p>
+          <h2>{authMode === "signup" ? "Create your Construction Site AI account" : "Welcome back"}</h2>
+          <p>{authMode === "signup" ? "Choose your account type." : "Sign in to your secure Construction Site AI account."}</p>
           {authMode === "signup" && <div className="form-grid">
             <button type="button" className={`btn ${signupRole === "company" ? "btn-primary" : "btn-dark"}`} onClick={() => { setSignupRole("company"); setAuthMessage(""); }}>Company Sign Up</button>
             <button type="button" className={`btn ${signupRole === "engineer" ? "btn-primary" : "btn-dark"}`} onClick={() => { setSignupRole("engineer"); setAuthMessage(""); }}>Engineer Sign Up</button>
@@ -997,12 +1102,12 @@ function App() {
               {signupRole === "company" && <div className="field"><label>Company name</label><input required autoComplete="organization" value={authForm.company} onChange={event => setAuthForm({ ...authForm, company: event.target.value })} placeholder="Construction company" /></div>}
             </>}
             <div className="field"><label>Email address</label><input required type="email" autoComplete="email" value={authForm.email} onChange={event => setAuthForm({ ...authForm, email: event.target.value })} placeholder="you@company.com" /></div>
-            <div className="field"><label>Password</label><input required minLength={6} type="password" autoComplete={authMode === "signup" ? "new-password" : "current-password"} value={authForm.password} onChange={event => setAuthForm({ ...authForm, password: event.target.value })} placeholder="At least 6 characters" /></div>
+            <div className="field"><label>Password</label><input required minLength={8} type="password" autoComplete={authMode === "signup" ? "new-password" : "current-password"} value={authForm.password} onChange={event => setAuthForm({ ...authForm, password: event.target.value })} placeholder="At least 8 characters" /></div>
             {authMode === "login" && <button type="button" className="text-button forgot-password" onClick={requestPasswordReset} disabled={authBusy}>{language === "ar" ? "هل نسيت كلمة المرور؟" : "Forgot password?"}</button>}
             {authMessage && <div className="inline-message" role="status">{authMessage}</div>}
             <button className="btn btn-primary" type="submit" disabled={authBusy}>{authBusy ? <RefreshCw size={17} /> : authMode === "signup" ? <UserPlus size={17} /> : <LogIn size={17} />}{authBusy ? "Please wait..." : authMode === "signup" ? (signupRole === "company" ? "Create company account" : "Create engineer account") : "Login securely"}</button>
           </form>
-          <div className="auth-switch">{authMode === "signup" ? "Already have an account?" : "New to SITELOG AI?"}<button type="button" className="text-button" onClick={() => { setAuthMode(authMode === "signup" ? "login" : "signup"); setAuthMessage(""); }}>{authMode === "signup" ? "Login" : "Create account"}</button></div>
+          <div className="auth-switch">{authMode === "signup" ? "Already have an account?" : "New to Construction Site AI?"}<button type="button" className="text-button" onClick={() => { setAuthMode(authMode === "signup" ? "login" : "signup"); setAuthMessage(""); }}>{authMode === "signup" ? "Login" : "Create account"}</button></div>
           <div className="security-foot"><ShieldCheck size={14} /> Your data is connected to your Supabase account.</div>
         </div>
       </div></Localized>
@@ -1014,7 +1119,7 @@ function App() {
       <Localized language={language}><div className="login-wrap">
         <div className="login-card">
           {languagePicker}
-          <div className="login-brand"><div className="brand-mark">S</div><div><h1>Set up your workspace</h1><p>One company workspace for your project team.</p></div></div>
+          <div className="login-brand"><div className="brand-mark">C</div><div><h1>Set up your workspace</h1><p>One company workspace for your project team.</p></div></div>
           {workspaceError && <div className="inline-message">{workspaceError}</div>}
           {authUser.user_metadata?.signup_role === "engineer" ? <div className="inline-message" role="status">Your engineer account is active, but it has not been assigned to a company or project yet. Please wait for an invitation or assignment from your company administrator.</div> : <form className="login-form" onSubmit={createWorkspace}>
             <div className="field"><label>Company name</label><input required value={companySetupName} onChange={event => setCompanySetupName(event.target.value)} placeholder="Your construction company" /></div>
@@ -1038,8 +1143,8 @@ function App() {
     <Localized language={language}><div className="app-shell">
       <header className="topbar">
         <div className="brand">
-          <div className="brand-mark">S</div>
-          <div className="brand-copy"><strong>SITELOG AI</strong><span>Construction operations</span></div>
+          <div className="brand-mark">C</div>
+          <div className="brand-copy"><strong>Construction Site AI</strong><span>Construction operations</span></div>
         </div>
         <div className="topbar-actions">
           {languagePicker}
@@ -1139,6 +1244,7 @@ function App() {
                 </div>
                 <div className="field full report-textarea"><div className="field-heading"><label>Work completed *</label><button className="voice-action" type="button" onClick={() => startVoice("workDone")}><Mic size={14} />Voice input</button></div><textarea required rows="4" value={reportForm.workDone} onChange={event => updateReportField("workDone", event.target.value)} placeholder="Describe today's completed work, quantities and milestones..." /></div>
                 <div className="form-grid form-grid-3">
+                  <div className="field"><label>Worker count</label><input type="number" min="0" step="1" value={reportForm.workersCount ?? 0} onChange={event => updateReportField("workersCount", event.target.value)} placeholder="Total workers on site" /></div>
                   <div className="field"><div className="field-heading"><label>Labour / manpower</label><button className="voice-action" type="button" onClick={() => startVoice("labour")}><Mic size={13} /></button></div><textarea rows="3" value={reportForm.labour} onChange={event => updateReportField("labour", event.target.value)} placeholder="e.g. 8 masons, 4 helpers" /></div>
                   <div className="field"><div className="field-heading"><label>Materials</label><button className="voice-action" type="button" onClick={() => startVoice("materials")}><Mic size={13} /></button></div><textarea rows="3" value={reportForm.materials} onChange={event => updateReportField("materials", event.target.value)} placeholder="Materials received or used" /></div>
                   <div className="field"><div className="field-heading"><label>Equipment</label><button className="voice-action" type="button" onClick={() => startVoice("equipment")}><Mic size={13} /></button></div><textarea rows="3" value={reportForm.equipment} onChange={event => updateReportField("equipment", event.target.value)} placeholder="Equipment on site" /></div>
@@ -1146,7 +1252,7 @@ function App() {
                   <div className="field"><div className="field-heading"><label>Additional notes</label><button className="voice-action" type="button" onClick={() => startVoice("notes")}><Mic size={13} /></button></div><textarea rows="3" value={reportForm.notes} onChange={event => updateReportField("notes", event.target.value)} placeholder="Instructions and follow-up" /></div>
                   <div className="field"><label>Site photos</label><label className="upload-tile"><Camera size={20} /><strong>Add site photos</strong><small>Up to 8 images; compressed for easier saving</small><input type="file" accept="image/*" multiple onChange={handlePhotos} /></label></div>
                 </div>
-                {reportForm.photos.length > 0 && <div className="photo-grid">{reportForm.photos.map((photo, index) => <div className="photo-item" key={`${index}-${photo.slice(0, 22)}`}><img src={photo} alt={`Site photograph ${index + 1}`} /><button type="button" aria-label="Remove photo" onClick={() => updateReportField("photos", reportForm.photos.filter((_, photoIndex) => photoIndex !== index))}><X size={15} /></button></div>)}</div>}
+                {reportForm.photos.length > 0 && <div className="photo-grid">{reportForm.photos.map((photo, index) => <div className="photo-item" key={`${index}-${photoKey(photo)}`}><button type="button" className="photo-preview-trigger" onClick={() => openPhoto(photo)} aria-label={`Open site photo ${index + 1}`}>{(photoDataUrl(photo) || photoUrls[photoStoragePath(photo)]) ? <img src={photoDataUrl(photo) || photoUrls[photoStoragePath(photo)]} alt={`Site photograph ${index + 1}`} /> : <Camera size={24} />}</button><button type="button" aria-label="Remove photo" onClick={() => updateReportField("photos", reportForm.photos.filter((_, photoIndex) => photoIndex !== index))}><X size={15} /></button></div>)}</div>}
                 <div className="form-actions"><button className="btn btn-primary" type="submit" disabled={saving || !projects.length}><Save size={16} />{saving ? "Saving report..." : editingReportId ? "Update report" : "Save daily report"}</button><button className="btn btn-dark" type="button" onClick={() => { setEditingReportId(null); setReportForm({ ...EMPTY_REPORT, engineer: userName, projectId: projects[0]?.id || "", projectName: projects[0]?.name || "", projectCode: projects[0]?.code || "" }); }}>Clear form</button></div>
               </form>
             </section>
@@ -1194,10 +1300,11 @@ function App() {
             </div>
           </>}
 
-          <footer className="app-footer"><span>SITELOG AI <span className="footer-dot">•</span> Construction operations</span><span><ShieldCheck size={13} /> Signed in as {authUser.email}</span></footer>
+          <footer className="app-footer"><span>Construction Site AI <span className="footer-dot">•</span> Construction operations</span><span><ShieldCheck size={13} /> Signed in as {authUser.email}</span></footer>
         </main>
       </div>
       {notice && <div className="toast" role="status">{notice}</div>}
+      {photoPreview && <div className="photo-lightbox" role="dialog" aria-modal="true" aria-label="Site photo preview" onClick={() => setPhotoPreview(null)}><button type="button" className="photo-lightbox-close" onClick={() => setPhotoPreview(null)} aria-label="Close photo preview"><X size={22} /></button><img src={photoPreview} alt="Full-size site photograph" onClick={event => event.stopPropagation()} /></div>}
     </div></Localized>
   );
 }

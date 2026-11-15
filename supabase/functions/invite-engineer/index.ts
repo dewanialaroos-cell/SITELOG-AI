@@ -67,28 +67,67 @@ Deno.serve(async (req) => {
       return respond({ error: "Selected project does not belong to this company." }, 400);
     }
 
-    const { data: invited, error: inviteError } = await admin.auth.admin.inviteUserByEmail(email);
-    if (inviteError) {
-      return respond({
-        error: inviteError.message.includes("already") || inviteError.message.includes("registered")
-          ? "This email already has an account. Existing-user assignment is not enabled in this invitation flow yet."
-          : inviteError.message,
-      }, 400);
+    // Resolve an already-registered engineer by email before attempting a new invite.
+    let targetUser: any = null;
+    const perPage = 1000;
+    for (let page = 1; page <= 100; page += 1) {
+      const { data, error: usersError } = await admin.auth.admin.listUsers({ page, perPage });
+      if (usersError) throw usersError;
+      targetUser = data.users.find((user: any) => user.email?.toLowerCase() === email) || null;
+      if (targetUser || data.users.length < perPage) break;
     }
-    const invitedUserId = invited.user?.id;
-    if (!invitedUserId) throw new Error("Supabase did not return the invited user ID.");
 
-    const { error: companyInsertError } = await admin
+    let existingUser = Boolean(targetUser);
+    if (targetUser) {
+      // User-editable auth metadata is not a trusted authorization source.
+      // Do not silently downgrade company owner/admin accounts.
+      const { data: targetMemberships, error: targetMembershipError } = await admin
+        .from("company_members")
+        .select("role")
+        .eq("user_id", targetUser.id);
+      if (targetMembershipError) throw targetMembershipError;
+      if ((targetMemberships || []).some((item: any) => ["owner", "admin"].includes(item.role))) {
+        return respond({ error: "This email belongs to a company owner/admin account and cannot be assigned as an engineer." }, 409);
+      }
+    } else {
+      const { data: invited, error: inviteError } = await admin.auth.admin.inviteUserByEmail(email);
+      if (inviteError) throw inviteError;
+      targetUser = invited.user;
+      if (!targetUser?.id) throw new Error("Supabase did not return the invited user ID.");
+    }
+
+    const userId = targetUser.id;
+    const { data: currentCompanyMembership, error: currentCompanyMembershipError } = await admin
       .from("company_members")
-      .insert({ company_id: companyId, user_id: invitedUserId, role: "engineer" });
-    if (companyInsertError && companyInsertError.code !== "23505") throw companyInsertError;
+      .select("role")
+      .eq("company_id", companyId)
+      .eq("user_id", userId)
+      .maybeSingle();
+    if (currentCompanyMembershipError) throw currentCompanyMembershipError;
+
+    if (!currentCompanyMembership) {
+      const { error } = await admin.from("company_members").insert({
+        company_id: companyId,
+        user_id: userId,
+        role: "engineer",
+      });
+      if (error && error.code !== "23505") throw error;
+    }
 
     const { error: projectInsertError } = await admin
       .from("project_members")
-      .insert({ project_id: projectId, user_id: invitedUserId, role: "engineer" });
+      .insert({ project_id: projectId, user_id: userId, role: "engineer" });
     if (projectInsertError && projectInsertError.code !== "23505") throw projectInsertError;
 
-    return respond({ success: true, invited_email: email });
+    return respond({
+      success: true,
+      existing_user: existingUser,
+      email_sent: !existingUser,
+      assigned_email: email,
+      message: existingUser
+        ? "Existing engineer assigned to the selected project."
+        : "Invitation email sent and project assigned.",
+    });
   } catch (error) {
     console.error("invite-engineer failed:", error);
     return respond({ error: error instanceof Error ? error.message : "Invitation failed." }, 500);

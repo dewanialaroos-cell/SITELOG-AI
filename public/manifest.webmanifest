@@ -1,7 +1,7 @@
 {
   "id": "/",
-  "name": "SITELOG AI — Construction Site Management",
-  "short_name": "SITELOG AI",
+  "name": "Construction Site AI — Construction Site Management",
+  "short_name": "Construction Site AI",
   "description": "Manage construction projects, site activity and daily reports.",
   "start_url": "/",
   "scope": "/",
@@ -12,7 +12,7 @@
   "categories": ["business", "productivity"],
   "icons": [
     {
-      "src": "/icons/sitelog-icon.svg",
+      "src": "/icons/construction-site-icon.svg",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any maskable"
